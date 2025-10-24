@@ -218,6 +218,7 @@ export default function Home() {
             <Button
               size="lg"
               className="bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white px-12 py-6 text-lg rounded-xl shadow-lg shadow-purple-500/50 transition-all hover:scale-105"
+              onClick={() => router.push("/login")}
             >
               Sign Up Free
             </Button>
