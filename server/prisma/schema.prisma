@@ -13,7 +13,7 @@ model User {
   id             String  @id @default(uuid())
   username       String  @unique
   imageUrl       String  @db.Text
-  externalUserId String  @unique // Supabase Auth User ID
+  supabaseUserId String  @unique // Supabase Auth User ID
   bio            String? @db.Text
 
   // Social relationships
@@ -30,16 +30,16 @@ model User {
   updatedAt DateTime @updatedAt
 
   @@index([username])
-  @@index([externalUserId])
+  @@index([supabaseUserId])
 }
 
 model Stream {
   id           String  @id @default(uuid())
-  name         String  @db.Text
+  title        String  @db.Text
   thumbnailUrl String? @db.Text
 
   // LiveKit Configuration
-  ingressId String? @unique// LiveKit Ingress ID
+  ingressId String? @unique // LiveKit Ingress ID
   serverUrl String? @db.Text // RTMP/WHIP server URL
   streamKey String? @db.Text // Stream key for OBS/streaming software
 
@@ -56,7 +56,7 @@ model Stream {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([name])
+  @@index([title])
   @@index([userId])
   @@index([ingressId])
   @@index([isLive])
