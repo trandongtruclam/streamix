@@ -63,7 +63,14 @@ export function RecordingControl({ roomName, isHost }: RecordingControlProps) {
         setEgressId(result.egressId);
         toast.success("Recording started");
       } catch (error) {
-        toast.error("Failed to start recording");
+        const message = error instanceof Error ? error.message : "Failed to start recording";
+        if (message.includes("not configured")) {
+          toast.error("Recording not available", {
+            description: "Cloud storage is not configured for this server.",
+          });
+        } else {
+          toast.error(message);
+        }
       }
     });
   };

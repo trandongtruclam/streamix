@@ -8,6 +8,7 @@ import {
   StreamProtocol,
   SegmentedFileOutput,
   SegmentedFileProtocol,
+  S3Upload,
 } from "livekit-server-sdk";
 import { revalidatePath } from "next/cache";
 
@@ -32,7 +33,7 @@ const getEgressClient = () => {
 export async function startRecording(roomName: string) {
   try {
     const self = await getSelf();
-    
+
     // Verify the user owns this stream
     const stream = await prisma.stream.findFirst({
       where: {
@@ -44,27 +45,53 @@ export async function startRecording(roomName: string) {
       throw new Error("Stream not found");
     }
 
+    // Check if S3 storage is configured
+    const s3Bucket = process.env.LIVEKIT_S3_BUCKET;
+    const s3AccessKey = process.env.LIVEKIT_S3_ACCESS_KEY;
+    const s3SecretKey = process.env.LIVEKIT_S3_SECRET_KEY;
+    const s3Region = process.env.LIVEKIT_S3_REGION || "us-east-1";
+    const s3Endpoint = process.env.LIVEKIT_S3_ENDPOINT;
+
+    if (!s3Bucket || !s3AccessKey || !s3SecretKey) {
+      throw new Error(
+        "Recording storage not configured. Please configure S3 storage in environment variables."
+      );
+    }
+
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
     const filename = `${roomName}-${timestamp}`;
 
     const egressClient = getEgressClient();
-    
-    // Create proper EncodedFileOutput
+
+    // Create S3 upload configuration
+    const s3Upload = new S3Upload({
+      bucket: s3Bucket,
+      accessKey: s3AccessKey,
+      secret: s3SecretKey,
+      region: s3Region,
+      endpoint: s3Endpoint,
+    });
+
+    // Create EncodedFileOutput with S3 configuration
     const fileOutput = new EncodedFileOutput({
       fileType: EncodedFileType.MP4,
       filepath: `recordings/${roomName}/${filename}.mp4`,
       disableManifest: true,
+      output: {
+        case: "s3",
+        value: s3Upload,
+      },
     });
 
     // Start room composite egress
     const egress = await egressClient.startRoomCompositeEgress(
       roomName,
       fileOutput,
-      "speaker-dark"
+      { layout: "speaker-dark" }
     );
 
     revalidatePath(`/u/${self.username}`);
-    
+
     return {
       success: true,
       egressId: egress.egressId,
@@ -72,7 +99,9 @@ export async function startRecording(roomName: string) {
     };
   } catch (error) {
     console.error("Failed to start recording:", error);
-    throw new Error("Failed to start recording");
+    const message =
+      error instanceof Error ? error.message : "Failed to start recording";
+    throw new Error(message);
   }
 }
 
@@ -81,11 +110,11 @@ export async function stopRecording(egressId: string) {
   try {
     const self = await getSelf();
     const egressClient = getEgressClient();
-    
+
     const result = await egressClient.stopEgress(egressId);
-    
+
     revalidatePath(`/u/${self.username}`);
-    
+
     return {
       success: true,
       status: result.status,
@@ -101,13 +130,13 @@ export async function listRecordings() {
   try {
     const self = await getSelf();
     const egressClient = getEgressClient();
-    
+
     // Get all egress instances for user's room
     const egressList = await egressClient.listEgress({
       roomName: self.id,
     });
 
-    return egressList.map(egress => ({
+    return egressList.map((egress) => ({
       id: egress.egressId,
       status: egress.status,
       startedAt: egress.startedAt,
@@ -123,9 +152,31 @@ export async function listRecordings() {
 // Start HLS streaming for a room
 export async function startHlsStream(roomName: string) {
   try {
+    // Check if S3 storage is configured
+    const s3Bucket = process.env.LIVEKIT_S3_BUCKET;
+    const s3AccessKey = process.env.LIVEKIT_S3_ACCESS_KEY;
+    const s3SecretKey = process.env.LIVEKIT_S3_SECRET_KEY;
+    const s3Region = process.env.LIVEKIT_S3_REGION || "us-east-1";
+    const s3Endpoint = process.env.LIVEKIT_S3_ENDPOINT;
+
+    if (!s3Bucket || !s3AccessKey || !s3SecretKey) {
+      throw new Error(
+        "HLS storage not configured. Please configure S3 storage in environment variables."
+      );
+    }
+
     const timestamp = Date.now();
     const playlistName = `${roomName}-${timestamp}`;
     const egressClient = getEgressClient();
+
+    // Create S3 upload configuration
+    const s3Upload = new S3Upload({
+      bucket: s3Bucket,
+      accessKey: s3AccessKey,
+      secret: s3SecretKey,
+      region: s3Region,
+      endpoint: s3Endpoint,
+    });
 
     const segmentOutput = new SegmentedFileOutput({
       protocol: SegmentedFileProtocol.HLS_PROTOCOL,
@@ -133,12 +184,16 @@ export async function startHlsStream(roomName: string) {
       playlistName: "playlist.m3u8",
       livePlaylistName: "live.m3u8",
       segmentDuration: 6,
+      output: {
+        case: "s3",
+        value: s3Upload,
+      },
     });
 
     const egress = await egressClient.startRoomCompositeEgress(
       roomName,
       segmentOutput,
-      "speaker-dark"
+      { layout: "speaker-dark" }
     );
 
     return {
@@ -148,13 +203,15 @@ export async function startHlsStream(roomName: string) {
     };
   } catch (error) {
     console.error("Failed to start HLS stream:", error);
-    throw new Error("Failed to start HLS stream");
+    const message =
+      error instanceof Error ? error.message : "Failed to start HLS stream";
+    throw new Error(message);
   }
 }
 
 // Restream to external platform (YouTube, Facebook, etc.)
 export async function startRestream(
-  roomName: string, 
+  roomName: string,
   platform: "youtube" | "facebook" | "twitch" | "custom",
   rtmpUrl: string,
   streamKey: string
@@ -182,7 +239,7 @@ export async function startRestream(
     const egress = await egressClient.startRoomCompositeEgress(
       roomName,
       streamOutput,
-      "speaker-dark"
+      { layout: "speaker-dark" }
     );
 
     return {
@@ -221,7 +278,7 @@ export async function getEgressStatus(egressId: string) {
     }
 
     const egress = egressList[0];
-    
+
     return {
       id: egress.egressId,
       status: egress.status,

@@ -30,6 +30,8 @@ import {
 import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 
+import { setStreamLiveStatus } from "@/actions/stream";
+
 interface BrowserBroadcastProps {
   token: string;
   serverUrl: string;
@@ -97,13 +99,13 @@ export function BrowserBroadcast({ token, serverUrl, username }: BrowserBroadcas
   // Start preview
   const startPreview = useCallback(async () => {
     try {
-      setStreamState("preview");
-
       const videoPreset = quality === "1080p" 
         ? VideoPresets.h1080 
         : quality === "720p" 
           ? VideoPresets.h720 
           : VideoPresets.h540;
+
+      console.log("Starting preview with device:", selectedVideoDevice);
 
       const video = await createLocalVideoTrack({
         deviceId: selectedVideoDevice || undefined,
@@ -116,18 +118,23 @@ export function BrowserBroadcast({ token, serverUrl, username }: BrowserBroadcas
         noiseSuppression: true,
       });
 
+      console.log("Tracks created:", { video, audio });
+
       setVideoTrack(video);
       setAudioTrack(audio);
 
-      // Attach video to preview element
+      // Attach video to preview element after state is set
       if (videoRef.current) {
         video.attach(videoRef.current);
+        console.log("Video attached to element");
       }
 
+      // Set state to preview AFTER tracks are ready
+      setStreamState("preview");
       toast.success("Preview ready");
     } catch (error) {
       console.error("Failed to start preview:", error);
-      toast.error("Failed to start preview");
+      toast.error("Failed to start preview: " + (error instanceof Error ? error.message : "Unknown error"));
       setStreamState("idle");
     }
   }, [selectedVideoDevice, selectedAudioDevice, quality]);
@@ -172,8 +179,14 @@ export function BrowserBroadcast({ token, serverUrl, username }: BrowserBroadcas
 
       roomRef.current = room;
 
-      room.on(RoomEvent.Disconnected, () => {
+      room.on(RoomEvent.Disconnected, async () => {
         setStreamState("preview");
+        // Update stream status to offline when disconnected
+        try {
+          await setStreamLiveStatus(false);
+        } catch (e) {
+          console.error("Failed to update stream status:", e);
+        }
         toast.info("Disconnected from stream");
       });
 
@@ -198,6 +211,9 @@ export function BrowserBroadcast({ token, serverUrl, username }: BrowserBroadcas
         source: Track.Source.Microphone,
       });
 
+      // Update stream status to live in database
+      await setStreamLiveStatus(true);
+
       setStreamState("live");
       toast.success("You are now live!");
     } catch (error) {
@@ -209,6 +225,13 @@ export function BrowserBroadcast({ token, serverUrl, username }: BrowserBroadcas
 
   // Stop broadcast
   const stopBroadcast = useCallback(async () => {
+    try {
+      // Update stream status to offline first
+      await setStreamLiveStatus(false);
+    } catch (e) {
+      console.error("Failed to update stream status:", e);
+    }
+    
     if (roomRef.current) {
       await roomRef.current.disconnect();
       roomRef.current = null;
@@ -262,15 +285,35 @@ export function BrowserBroadcast({ token, serverUrl, username }: BrowserBroadcas
     }
   }, [videoTrack, videoDevices, selectedVideoDevice]);
 
+  // Track stream state in a ref for cleanup
+  const streamStateRef = useRef<StreamState>(streamState);
+  useEffect(() => {
+    streamStateRef.current = streamState;
+  }, [streamState]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
-      stopPreview();
+      // Stop preview tracks
+      if (videoTrack) {
+        videoTrack.stop();
+      }
+      if (audioTrack) {
+        audioTrack.stop();
+      }
+      
+      // If we were live, update status and disconnect
       if (roomRef.current) {
+        // Update stream status to offline if we were live
+        if (streamStateRef.current === "live") {
+          setStreamLiveStatus(false).catch(console.error);
+        }
         roomRef.current.disconnect();
+        roomRef.current = null;
       }
     };
-  }, [stopPreview]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div className="bg-[#18181b] rounded-xl overflow-hidden">

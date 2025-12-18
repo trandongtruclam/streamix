@@ -13,6 +13,35 @@ interface StreamUpdateData {
   isChatDelayed?: boolean;
 }
 
+/**
+ * Set the stream live status
+ * Used by browser broadcast to go live/offline
+ */
+export const setStreamLiveStatus = async (isLive: boolean) => {
+  try {
+    const self = await getSelf();
+
+    const stream = await prisma.stream.update({
+      where: {
+        userId: self.id,
+      },
+      data: {
+        isLive,
+      },
+    });
+
+    // Revalidate all relevant paths
+    revalidatePath(`/u/${self.username}`);
+    revalidatePath(`/${self.username}`);
+    revalidatePath("/");
+
+    return stream;
+  } catch (error) {
+    console.error("setStreamLiveStatus", error);
+    throw new Error("Failed to update stream status");
+  }
+};
+
 export const updateStream = async (values: StreamUpdateData) => {
   try {
     const self = await getSelf();
