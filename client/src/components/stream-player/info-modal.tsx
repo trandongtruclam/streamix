@@ -19,7 +19,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { updateStream } from "@/actions/stream";
-import { UploadDropzone } from "@/lib/uploadthing";
+// import { UploadDropzone } from "@/lib/uploadthing";
 
 export function InfoModal({
   initialName,
@@ -28,7 +28,7 @@ export function InfoModal({
   initialName: string;
   initialThumbnailUrl: string | null;
 }) {
-  const router = useRouter();
+  // const router = useRouter();
   const closeRef = useRef<ElementRef<"button">>(null);
   const [isPending, startTransition] = useTransition();
 
@@ -89,7 +89,7 @@ export function InfoModal({
             <Label>Thumbnail</Label>
             {thumbnailUrl ? (
               <div className="relative aspect-video rounded-xl overflow-hidden border border-white/10">
-                <div className="absolute top-2 right-2 z-[10]">
+                <div className="absolute top-2 right-2 z-10">
                   <Hint label="Remove thumbnail" asChild side="left">
                     <Button
                       type="button"
@@ -110,7 +110,7 @@ export function InfoModal({
               </div>
             ) : (
               <div className="rounded-xl border outline-dashed outline-muted">
-                <UploadDropzone
+                {/* <UploadDropzone
                   endpoint="thumbnailUploader"
                   appearance={{
                     label: {
@@ -125,7 +125,8 @@ export function InfoModal({
                     router.refresh();
                     closeRef?.current?.click();
                   }}
-                />
+                /> */}
+                <p>should upload image here!!</p>
               </div>
             )}
           </div>

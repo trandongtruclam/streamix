@@ -2,7 +2,7 @@
 
 import React, { useMemo, useState } from "react";
 import { useParticipants } from "@livekit/components-react";
-import { useDebounce } from "usehooks-ts";
+import { useDebounceValue } from "usehooks-ts";
 import { LocalParticipant, RemoteParticipant } from "livekit-client";
 
 import { Input } from "@/components/ui/input";
@@ -20,7 +20,8 @@ export function ChatCommunity({
   isHidden: boolean;
 }) {
   const [value, setValue] = useState("");
-  const debouncedValue = useDebounce<string>(value, 500);
+  //const debouncedValue = useDebounceValue<string>(value, 500);
+  const [debouncedValue] = useDebounceValue<string>(value, 500);
 
   const participants = useParticipants();
 
@@ -37,8 +38,13 @@ export function ChatCommunity({
       return acc;
     }, [] as (RemoteParticipant | LocalParticipant)[]);
 
+    // return deduped.filter((participant) =>
+    //   participant.name?.toLowerCase().includes(debouncedValue.toLowerCase())
+
     return deduped.filter((participant) =>
-      participant.name?.toLowerCase().includes(debouncedValue.toLowerCase())
+      (participant.name || "")
+        .toLowerCase()
+        .includes(debouncedValue.toLowerCase())
     );
   }, [debouncedValue, participants]);
 
