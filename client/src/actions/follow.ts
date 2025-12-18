@@ -16,6 +16,7 @@ export const onFollow = async (id: string) => {
 
     return followedUser;
   } catch (error) {
+    console.error("unable to follow user", error);
     throw new Error("Internal server error");
   }
 };
@@ -32,6 +33,7 @@ export const onUnfollow = async (id: string) => {
 
     return unfollowedUser;
   } catch (error) {
+    console.error("unable to follow user", error);
     throw new Error("Internal server error");
   }
 };
