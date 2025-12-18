@@ -4,6 +4,16 @@ import { JwtPayload, jwtDecode } from "jwt-decode";
 
 import { createViewerToken } from "@/actions/token";
 
+interface LiveKitJwtPayload extends JwtPayload {
+  name?: string;
+  video?: {
+    room?: string;
+    roomJoin?: boolean;
+    canPublish?: boolean;
+    canPublishData?: boolean;
+  };
+}
+
 export const useViewerToken = (hostIdentity: string) => {
   const [token, setToken] = useState("");
   const [name, setName] = useState("");
@@ -15,22 +25,21 @@ export const useViewerToken = (hostIdentity: string) => {
         const viewerToken = await createViewerToken(hostIdentity);
         setToken(viewerToken);
 
-        const decodedToken = jwtDecode(viewerToken) as JwtPayload & {
-          name?: string;
-        };
+        const decodedToken = jwtDecode<LiveKitJwtPayload>(viewerToken);
 
-        const name = decodedToken?.name;
-        const identity = decodedToken.jti;
+        // LiveKit uses 'sub' claim for identity
+        const tokenIdentity = decodedToken.sub;
+        const tokenName = decodedToken?.name;
 
-        if (identity) {
-          setIdentity(identity);
+        if (tokenIdentity) {
+          setIdentity(tokenIdentity);
         }
 
-        if (name) {
-          setName(name);
+        if (tokenName) {
+          setName(tokenName);
         }
       } catch (error) {
-        console.error("error creating token", error)
+        console.error("error creating token", error);
         toast.error("Something went wrong! Error creating token");
       }
     };

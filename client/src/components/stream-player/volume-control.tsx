@@ -33,22 +33,24 @@ export function VolumeControl({
   };
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-3 group">
       <Hint asChild label={label}>
         <button
           onClick={onToggle}
-          className="text-white hover:bg-white/10 p-1.5 rounded-lg"
+          className="text-white p-2 hover:bg-white/20 rounded-md transition-colors duration-200"
         >
-          <Icon className="h-6 w-6" />
+          <Icon className="h-5 w-5" />
         </button>
       </Hint>
-      <Slider
-        className="w-[8rem] cursor-pointer"
-        onValueChange={handleChange}
-        value={[value]}
-        max={100}
-        step={1}
-      />
+      <div className="w-0 overflow-hidden group-hover:w-24 transition-all duration-300">
+        <Slider
+          className="cursor-pointer"
+          onValueChange={handleChange}
+          value={[value]}
+          max={100}
+          step={1}
+        />
+      </div>
     </div>
   );
 }

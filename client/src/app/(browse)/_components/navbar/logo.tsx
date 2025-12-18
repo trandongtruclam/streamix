@@ -1,24 +1,32 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 
 import { cn } from "@/lib/utils";
 
-const font = Poppins({
+const font = Inter({
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export function Logo() {
   return (
     <Link href="/">
-      <div className="flex items-center gap-x-4 hover:opacity-75 transition">
-        <div className="bg-white rounded-full p-1 mr-12 shrink-0 lg:mr-0 lg:shrink">
-          <Image src="/spooky.svg" alt="GameHub" height="32" width="32" />
+      <div className="flex items-center gap-x-3 hover:opacity-80 transition-opacity duration-200">
+        <div className="relative w-8 h-8 flex items-center justify-center">
+          <div className="absolute inset-0 bg-[#9147ff] rounded-lg opacity-20 blur-sm" />
+          <Image 
+            src="/streamix.svg" 
+            alt="Streamix" 
+            height={28} 
+            width={28}
+            className="relative z-10"
+          />
         </div>
         <div className={cn(font.className, "hidden lg:block")}>
-          <p className="text-lg font-semibold">GameHub</p>
-          <p className="text-xs text-muted-foreground">Let&apos;s Play</p>
+          <p className="text-lg font-bold text-white tracking-tight">
+            Streamix
+          </p>
         </div>
       </div>
     </Link>

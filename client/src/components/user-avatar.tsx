@@ -42,14 +42,15 @@ export function UserAvatar({
     <div className="relative">
       <Avatar
         className={cn(
-          isLive && "ring-2 ring-rose-500 border border-background",
+          "transition-all duration-200",
+          isLive && "ring-2 ring-[#eb0400] ring-offset-2 ring-offset-[#18181b]",
           avatarSizes({ size })
         )}
       >
         <AvatarImage src={imageUrl} className="object-cover" />
-        <AvatarFallback>
-          {username[0]}
-          {username[username.length - 1]}
+        <AvatarFallback className="bg-[#9147ff] text-white font-bold">
+          {username[0]?.toUpperCase()}
+          {username[username.length - 1]?.toUpperCase()}
         </AvatarFallback>
       </Avatar>
       {canShowBadge && (
@@ -62,5 +63,5 @@ export function UserAvatar({
 }
 
 export function UserAvatarSkeleton({ size }: UserAvatarSkeletonProps) {
-  return <Skeleton className={cn("rounded-full", avatarSizes({ size }))} />;
+  return <Skeleton className={cn("rounded-full bg-[#35353b]", avatarSizes({ size }))} />;
 }

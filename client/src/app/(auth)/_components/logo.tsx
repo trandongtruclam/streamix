@@ -1,22 +1,25 @@
 import Image from "next/image";
-import { Poppins } from "next/font/google";
+import { Inter } from "next/font/google";
 
 import { cn } from "@/lib/utils";
 
-const font = Poppins({
+const font = Inter({
   subsets: ["latin"],
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  weight: ["400", "500", "600", "700"],
 });
 
 export function Logo() {
   return (
     <div className="flex flex-col items-center gap-y-4">
-      <div className="bg-[white] rounded-full p-1">
-        <Image src="/streamix.svg" alt="Streamix" height="80" width="80" />
+      <div className="relative">
+        <div className="absolute inset-0 bg-[#9147ff] rounded-2xl opacity-30 blur-xl scale-150" />
+        <div className="relative bg-[#18181b] rounded-2xl p-4 border border-[#35353b]">
+          <Image src="/streamix.svg" alt="Streamix" height={64} width={64} />
+        </div>
       </div>
       <div className={cn("flex flex-col items-center", font.className)}>
-        <p className="text-xl font-semibold">Streamix</p>
-        <p className="text-sm text-muted-foreground">Let&apos;s Play</p>
+        <h1 className="text-2xl font-bold text-white">Streamix</h1>
+        <p className="text-sm text-[#adadb8]">Join millions of viewers today</p>
       </div>
     </div>
   );

@@ -20,7 +20,10 @@ export function Container({ children }: { children: React.ReactNode }) {
 
   return (
     <div
-      className={cn("flex-1", collapsed ? "ml-[70px]" : "ml-[70px] lg:ml-60")}
+      className={cn(
+        "flex-1 transition-all duration-300 ease-in-out", 
+        collapsed ? "ml-[50px]" : "ml-[50px] lg:ml-60"
+      )}
     >
       {children}
     </div>

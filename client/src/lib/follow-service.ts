@@ -30,8 +30,8 @@ export const getFollwedUser = async () => {
     });
 
     return followedUsers;
-  } catch (error) {
-    console.error("something wrong with follow service", error)
+  } catch {
+    // User not logged in - no followed users to show
     return [];
   }
 };

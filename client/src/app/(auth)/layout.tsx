@@ -3,9 +3,9 @@ import { Metadata } from "next";
 
 import { Logo } from "./_components/logo";
 
-export const metadata : Metadata = {
-  title: 'Authentication',
-}
+export const metadata: Metadata = {
+  title: "Authentication",
+};
 
 export default function AuthLayout({
   children,
@@ -13,7 +13,7 @@ export default function AuthLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="h-full flex flex-col items-center justify-center space-y-6">
+    <div className="h-full flex flex-col items-center justify-center space-y-8 bg-[#0e0e10]">
       <Logo />
       {children}
     </div>

@@ -26,6 +26,8 @@ export function Video({
   const tracks = useTracks([
     Track.Source.Camera,
     Track.Source.Microphone,
+    Track.Source.ScreenShare,
+    Track.Source.ScreenShareAudio,
   ]).filter((track) => track.participant.identity === hostIdentity);
 
   let content;
@@ -38,13 +40,24 @@ export function Video({
     content = <LiveVideo participant={participant} />;
   }
 
-  return <div className="aspect-video border-b group relative">{content}</div>;
+  return (
+    <div className="aspect-video bg-black group relative overflow-hidden border-b border-[#2f2f35]">
+      {content}
+    </div>
+  );
 }
 
 export function VideoSkeleton() {
   return (
-    <div className="aspect-video border-x border-background">
-      <Skeleton className="h-full w-full rounded-none" />
+    <div className="aspect-video bg-[#18181b] relative overflow-hidden border-b border-[#2f2f35]">
+      <Skeleton className="h-full w-full bg-[#26262c]" />
+      {/* Animated loading state */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="flex flex-col items-center space-y-4">
+          <div className="w-12 h-12 rounded-full border-4 border-[#35353b] border-t-[#9147ff] animate-spin" />
+          <p className="text-[#adadb8] text-sm">Loading stream...</p>
+        </div>
+      </div>
     </div>
   );
 }

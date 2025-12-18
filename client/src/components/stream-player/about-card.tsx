@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Users } from "lucide-react";
 
 import { VerifiedMark } from "@/components/verified-mark";
 
@@ -22,24 +23,40 @@ export function AboutCard({
   const hostAsViewer = `host-${hostIdentity}`;
   const isHost = viewerIdentity === hostAsViewer;
 
-  const followedByLabel = followedByCount === 1 ? "Follower" : "Followers";
+  const followedByLabel = followedByCount === 1 ? "follower" : "followers";
 
   return (
-    <div className="px-4">
-      <div className="group rounded-xl bg-background p-6 lg:p-10 flex flex-col gap-y-3">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-x-2 font-semibold text-lg lg:text-2xl">
-            About {hostName}
-            <VerifiedMark />
+    <div className="rounded-xl bg-[#1f1f23] border border-[#2f2f35] p-6 flex flex-col gap-y-4">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-x-2 font-bold text-lg text-white">
+          <span>About</span>
+          <span className="text-[#bf94ff]">{hostName}</span>
+          <VerifiedMark />
+        </div>
+        {isHost && <BioModal initialValue={bio} />}
+      </div>
+      
+      {/* Stats row */}
+      <div className="flex items-center gap-x-4">
+        <div className="flex items-center gap-x-2 bg-[#26262c] rounded-lg px-3 py-2">
+          <Users className="h-4 w-4 text-[#9147ff]" />
+          <div className="text-sm">
+            <span className="font-bold text-white">
+              {followedByCount.toLocaleString()}
+            </span>{" "}
+            <span className="text-[#adadb8]">{followedByLabel}</span>
           </div>
-          {isHost && <BioModal initialValue={bio} />}
         </div>
-        <div className="text-sm text-muted-foreground">
-          <span className="font-semibold text-primary">{followedByCount}</span>{" "}
-          {followedByLabel}
-        </div>
-        <p className="text-sm">
-          {bio || "This user prefers to keep an air of mystery about them."}
+      </div>
+      
+      {/* Bio section */}
+      <div className="border-t border-[#2f2f35] pt-4">
+        <p className="text-sm text-[#efeff1] leading-relaxed whitespace-pre-wrap">
+          {bio || (
+            <span className="text-[#adadb8] italic">
+              This streamer hasn&apos;t added a bio yet.
+            </span>
+          )}
         </p>
       </div>
     </div>

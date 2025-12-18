@@ -16,16 +16,16 @@ export function ChatList({
 }) {
   if (isHidden || !messages || messages.length === 0) {
     return (
-      <div className="flex flex-1 items-center justify-center">
-        <p className="text-sm text-muted-foreground">
-          {isHidden ? "Chat is disabled" : "Welcome to the chat!"}
+      <div className="flex flex-1 items-center justify-center px-4">
+        <p className="text-sm text-[#adadb8] text-center">
+          {isHidden ? "Chat is disabled" : "Welcome to the chat room!"}
         </p>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-1 flex-col-reverse overflow-y-auto p-3 h-full">
+    <div className="flex flex-1 flex-col-reverse overflow-y-auto p-3 h-full hidden-scrollbar">
       {messages.map((message) => (
         <ChatMessage key={message.timestamp} data={message} />
       ))}
@@ -35,8 +35,8 @@ export function ChatList({
 
 export function ChatListSkeleton() {
   return (
-    <div className="flex h-full items-center justify-center">
-      <Skeleton className="w-1/2 h-6" />
+    <div className="flex flex-1 items-center justify-center">
+      <Skeleton className="w-1/2 h-5 bg-[#35353b]" />
     </div>
   );
 }

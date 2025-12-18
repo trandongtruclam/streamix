@@ -7,8 +7,8 @@ export const getRecommended = async () => {
   try {
     const self = await getSelf();
     userId = self.id;
-  } catch (error) {
-    console.error("something went wrong with recommened service", error);
+  } catch {
+    // User not logged in - show all recommendations
     userId = null;
   }
 

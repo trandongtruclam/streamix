@@ -26,31 +26,35 @@ export function InfoCard({
 
   return (
     <div className="px-4">
-      <div className="rounded-xl bg-background">
-        <div className="flex items-center gap-x-2.5 p-4">
-          <div className="rounded-md bg-blue-600 p-2 h-auto w-auto">
-            <Pencil className="h-5 w-5" />
+      <div className="rounded-xl bg-[#1f1f23] border border-[#2f2f35] overflow-hidden">
+        <div className="flex items-center gap-x-3 p-4">
+          <div className="rounded-lg bg-[#9147ff] p-2.5">
+            <Pencil className="h-5 w-5 text-white" />
           </div>
-          <div>
-            <h2 className="text-sm lg:text-lg font-semibold capitalize">
+          <div className="flex-1">
+            <h2 className="text-sm lg:text-base font-semibold text-white">
               Edit your stream info
             </h2>
-            <p className="text-muted-foreground text-xs lg:text-sm">
+            <p className="text-[#adadb8] text-xs lg:text-sm">
               Maximize your visibility
             </p>
           </div>
           <InfoModal initialName={name} initialThumbnailUrl={thumbnailUrl} />
         </div>
-        <Separator />
+        <Separator className="bg-[#2f2f35]" />
         <div className="p-4 lg:p-6 space-y-4">
           <div>
-            <h3 className="text-sm text-muted-foreground mb-2">Name</h3>
-            <p className="text-sm font-semibold">{name}</p>
+            <h3 className="text-xs font-semibold text-[#adadb8] uppercase tracking-wider mb-2">
+              Name
+            </h3>
+            <p className="text-sm font-medium text-white">{name}</p>
           </div>
           <div>
-            <h3 className="text-sm text-muted-foreground mb-2">Thumbnail</h3>
-            {thumbnailUrl && (
-              <div className="relative aspect-video rounded-md overflow-hidden w-[200px] border border-white/10">
+            <h3 className="text-xs font-semibold text-[#adadb8] uppercase tracking-wider mb-2">
+              Thumbnail
+            </h3>
+            {thumbnailUrl ? (
+              <div className="relative aspect-video rounded-lg overflow-hidden w-[200px] border border-[#35353b]">
                 <Image
                   fill
                   src={thumbnailUrl}
@@ -58,6 +62,8 @@ export function InfoCard({
                   className="object-cover"
                 />
               </div>
+            ) : (
+              <p className="text-sm text-[#adadb8]">No thumbnail set</p>
             )}
           </div>
         </div>

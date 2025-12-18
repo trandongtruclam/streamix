@@ -14,11 +14,12 @@ export const metadata: Metadata = {
 
 export default async function CreatorLayout({
   children,
-  params: { username },
+  params,
 }: {
   children: React.ReactNode;
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
+  const { username } = await params;
   const self = await getSelfByUsername(username);
 
   if (!self) redirect("/");
@@ -26,7 +27,7 @@ export default async function CreatorLayout({
   return (
     <>
       <Navbar />
-      <div className="flex h-full pt-20">
+      <div className="flex h-full pt-[50px]">
         <Sidebar />
         <Container>{children}</Container>
       </div>

@@ -45,9 +45,9 @@ export function ChatInfo({
   if (!isDelayed && !isFollowersOnly) return null;
 
   return (
-    <div className="p-2 text-muted-foreground bg-white/5 border border-white/10 w-full rounded-t-md flex items-center gap-x-2">
+    <div className="p-2 text-[#adadb8] bg-[#26262c] border border-[#35353b] w-full rounded-t-md flex items-center gap-x-2">
       <Hint label={hint}>
-        <Info className="h-4 w-4" />
+        <Info className="h-4 w-4 text-[#9147ff]" />
       </Hint>
       <p className="text-xs font-semibold">{label}</p>
     </div>

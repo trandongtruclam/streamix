@@ -2,6 +2,7 @@
 
 import React from "react";
 import { User } from "@prisma/client";
+import { Users } from "lucide-react";
 
 import { useSidebar } from "@/store/use-sidebar";
 
@@ -14,16 +15,28 @@ export function Recommended({
 }) {
   const { collapsed } = useSidebar((state) => state);
 
-  const showLabel = !collapsed && data.length > 0;
+  const showLabel = !collapsed;
 
   return (
     <div>
       {showLabel && (
-        <div className="pl-6 mb-4">
-          <p className="text-xs text-muted-foreground">Recommended</p>
+        <div className="pl-4 mb-2">
+          <p className="text-xs font-semibold text-[#adadb8] uppercase tracking-wider">
+            Recommended Channels
+          </p>
         </div>
       )}
-      <ul className="space-y-2 px-2">
+      {data.length === 0 && !collapsed && (
+        <div className="px-4 py-6 flex flex-col items-center text-center">
+          <div className="p-3 bg-[#26262c] rounded-full mb-3">
+            <Users className="h-5 w-5 text-[#adadb8]" />
+          </div>
+          <p className="text-xs text-[#adadb8]">
+            No channels to recommend yet
+          </p>
+        </div>
+      )}
+      <ul className="space-y-0.5 px-2">
         {data.map((user) => (
           <UserItem
             key={user.id}

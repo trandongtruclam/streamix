@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <div className="h-full p-8 max-w-screen-2xl mx-auto">
+    <div className="h-full p-6 lg:p-8">
       <Suspense fallback={<ResultsSkeleton />}>
         <Results />
       </Suspense>

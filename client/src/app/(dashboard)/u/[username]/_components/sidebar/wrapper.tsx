@@ -11,8 +11,8 @@ export function Wrapper({ children }: { children: React.ReactNode }) {
   return (
     <aside
       className={cn(
-        "z-50 fixed left-0 flex flex-col w-[70px] lg:w-60 h-full bg-background border-r border-[#2D2E34]",
-        collapsed && "lg:w-[70px]"
+        "z-40 fixed left-0 flex flex-col h-full bg-[#1f1f23] pt-[50px] transition-all duration-300 ease-in-out",
+        collapsed ? "w-[50px]" : "w-[50px] lg:w-60"
       )}
     >
       {children}

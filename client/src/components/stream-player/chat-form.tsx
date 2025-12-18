@@ -3,7 +3,6 @@
 import React, { useState } from "react";
 
 import { cn } from "@/lib/utils";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -27,6 +26,7 @@ export function ChatForm({
   isFollowing: boolean;
 }) {
   const [isDelayBlocked, setIsDelayBlocked] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const isFollowersOnlyAndNotFollowing = isFollowersOnly && !isFollowing;
   const isDisabled =
@@ -56,23 +56,36 @@ export function ChatForm({
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col items-center gap-y-4 p-3"
+      className="flex flex-col gap-y-3 p-3 bg-[#18181b] border-t border-[#2f2f35]"
     >
       <div className="w-full">
         <ChatInfo isDelayed={isDelayed} isFollowersOnly={isFollowersOnly} />
-        <Input
-          onChange={(e) => onChange(e.target.value)}
-          value={value}
-          disabled={isDisabled}
-          placeholder="Send a message"
-          className={cn(
-            "border-white/10",
-            (isFollowersOnly || isDelayed) && "rounded-t-none border-t-0"
-          )}
-        />
+        <div className={cn(
+          "rounded-md border-2 transition-colors duration-200",
+          isFocused ? "border-[#9147ff]" : "border-transparent",
+          (isFollowersOnly || isDelayed) && "rounded-t-none"
+        )}>
+          <input
+            onChange={(e) => onChange(e.target.value)}
+            value={value}
+            disabled={isDisabled}
+            placeholder="Send a message"
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+            className={cn(
+              "w-full h-10 px-3 bg-[#3d3d40] rounded-md text-sm text-white placeholder:text-[#adadb8] focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed",
+              (isFollowersOnly || isDelayed) && "rounded-t-none"
+            )}
+          />
+        </div>
       </div>
-      <div className="ml-auto">
-        <Button type="submit" variant="primary" size="sm" disabled={isDisabled}>
+      <div className="flex items-center justify-end gap-x-2">
+        <Button 
+          type="submit" 
+          size="sm" 
+          disabled={isDisabled || !value}
+          className="bg-[#9147ff] hover:bg-[#772ce8] text-white font-semibold px-4 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
+        >
           Chat
         </Button>
       </div>
@@ -82,11 +95,10 @@ export function ChatForm({
 
 export function ChatFormSkeleton() {
   return (
-    <div className="flex flex-col items-center gap-y-4 p-3">
-      <Skeleton className="w-full h-10" />
-      <div className="flex items-center gap-x-2 ml-auto">
-        <Skeleton className="h-7 w-7" />
-        <Skeleton className="h-7 w-12" />
+    <div className="flex flex-col gap-y-3 p-3 bg-[#18181b] border-t border-[#2f2f35]">
+      <Skeleton className="w-full h-10 bg-[#35353b]" />
+      <div className="flex items-center justify-end gap-x-2">
+        <Skeleton className="h-8 w-16 bg-[#35353b]" />
       </div>
     </div>
   );

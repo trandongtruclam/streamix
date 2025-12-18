@@ -23,11 +23,13 @@ export function Following({
   return (
     <div>
       {!collapsed && (
-        <div className="pl-6 mb-4">
-          <p className="text-sm text-muted-foreground">Following</p>
+        <div className="pl-4 mb-2">
+          <p className="text-xs font-semibold text-[#adadb8] uppercase tracking-wider">
+            Followed Channels
+          </p>
         </div>
       )}
-      <ul className="space-y-2 px-2">
+      <ul className="space-y-0.5 px-2">
         {data.map((follow) => (
           <UserItem
             key={follow.following.id}

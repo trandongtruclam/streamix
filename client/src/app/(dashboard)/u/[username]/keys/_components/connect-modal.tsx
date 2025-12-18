@@ -61,11 +61,11 @@ export function ConnectModal() {
         >
           <SelectTrigger className="w-full">
             <SelectValue placeholder="Ingress Type" />
-            <SelectContent>
-              <SelectItem value={RTMP}>RTMP</SelectItem>
-              <SelectItem value={WHIP}>WHIP</SelectItem>
-            </SelectContent>
           </SelectTrigger>
+          <SelectContent>
+            <SelectItem value={RTMP}>RTMP</SelectItem>
+            <SelectItem value={WHIP}>WHIP</SelectItem>
+          </SelectContent>
         </Select>
         <Alert>
           <AlertTriangle className="h-4 w-4" />

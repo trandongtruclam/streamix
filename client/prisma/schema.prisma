@@ -8,10 +8,12 @@ datasource db {
 }
 
 model User {
-  id       String  @id
-  username String  @unique
-  imageUrl String
-  bio      String?
+  id           String  @id @default(uuid())
+  username     String  @unique
+  email        String  @unique
+  passwordHash String
+  imageUrl     String  @default("/default-avatar.png")
+  bio          String?
 
   following  Follow[] @relation("Following")
   followedBy Follow[] @relation("FollowedBy")
@@ -78,4 +80,15 @@ model Block {
   @@unique([blockerId, blockedId])
   @@index([blockerId])
   @@index([blockedId])
+}
+
+model Session {
+  id        String   @id @default(uuid())
+  userId    String
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
 }

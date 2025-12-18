@@ -51,3 +51,30 @@ export const createViewerToken = async (hostIdentity: string) => {
 
   return await Promise.resolve(token.toJwt());
 };
+
+/**
+ * Create a token for browser broadcasting
+ * This token has publish permissions and uses the user's ID as identity
+ * so viewers can find the participant correctly
+ */
+export const createBroadcastToken = async () => {
+  const self = await getSelf();
+
+  const token = new AccessToken(
+    process.env.LIVEKIT_API_KEY,
+    process.env.LIVEKIT_API_SECRET,
+    {
+      identity: self.id, // Use userId directly (without host- prefix) to match what viewers expect
+      name: self.username,
+    }
+  );
+
+  token.addGrant({
+    room: self.id, // Room name is the user's ID
+    roomJoin: true,
+    canPublish: true, // Allow publishing video/audio
+    canPublishData: true,
+  });
+
+  return await Promise.resolve(token.toJwt());
+};

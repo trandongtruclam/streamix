@@ -1,26 +1,33 @@
 "use server";
 
 import {
-  IngressAudioEncodingPreset,
   IngressInput,
   IngressClient,
-  IngressVideoEncodingPreset,
   RoomServiceClient,
   type CreateIngressOptions,
 } from "livekit-server-sdk";
-import { TrackSource } from "livekit-server-sdk/dist/proto/livekit_models";
 import { revalidatePath } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { getSelf } from "@/lib/auth-service";
 
+// Convert wss:// to https:// for API calls
+const getLiveKitApiUrl = () => {
+  const wsUrl = process.env.LIVEKIT_API_URL || "";
+  return wsUrl.replace("wss://", "https://").replace("ws://", "http://");
+};
+
 const roomService = new RoomServiceClient(
-  process.env.LIVEKIT_API_URL!,
+  getLiveKitApiUrl(),
   process.env.LIVEKIT_API_KEY,
   process.env.LIVEKIT_API_SECRET
 );
 
-const ingressClient = new IngressClient(process.env.LIVEKIT_API_URL!);
+const ingressClient = new IngressClient(
+  getLiveKitApiUrl(),
+  process.env.LIVEKIT_API_KEY,
+  process.env.LIVEKIT_API_SECRET
+);
 
 export const resetIngresses = async (hostId: string) => {
   const ingresses = await ingressClient.listIngress({
@@ -52,18 +59,11 @@ export const createIngress = async (ingressType: IngressInput) => {
     participantIdentity: self.id,
   };
 
+  // For WHIP input, bypass transcoding for lower latency
   if (ingressType === IngressInput.WHIP_INPUT) {
     options.bypassTranscoding = true;
-  } else {
-    options.video = {
-      source: TrackSource.CAMERA,
-      preset: IngressVideoEncodingPreset.H264_1080P_30FPS_3_LAYERS,
-    };
-    options.audio = {
-      source: TrackSource.MICROPHONE,
-      preset: IngressAudioEncodingPreset.OPUS_STEREO_96KBPS,
-    };
   }
+  // For RTMP input, default encoding settings will be used
 
   const ingress = await ingressClient.createIngress(ingressType, options);
 

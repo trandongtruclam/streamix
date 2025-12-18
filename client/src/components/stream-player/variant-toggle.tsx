@@ -26,7 +26,7 @@ export function VariantToggle() {
       <Button
         onClick={onToggle}
         variant="ghost"
-        className="h-auto p-2 hover:bg-white/10 hover:text-primary bg-transparent"
+        className="h-8 w-8 p-0 text-[#adadb8] hover:text-white hover:bg-[#35353b] rounded-md transition-all duration-200"
       >
         <Icon className="h-4 w-4" />
       </Button>

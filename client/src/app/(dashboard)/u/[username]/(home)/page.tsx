@@ -1,18 +1,19 @@
 import React from "react";
-import { currentUser } from "@clerk/nextjs/server";
 
+import { getCurrentUser } from "@/lib/auth-service";
 import { getUserByUsername } from "@/lib/user-service";
 import { StreamPlayer } from "@/components/stream-player";
 
 export default async function CreatorPage({
-  params: { username },
+  params,
 }: {
-  params: { username: string };
+  params: Promise<{ username: string }>;
 }) {
-  const externalUser = await currentUser();
+  const { username } = await params;
+  const currentUser = await getCurrentUser();
   const user = await getUserByUsername(username);
 
-  if (!user || user.externalUserId !== externalUser?.id || !user.stream) {
+  if (!user || user.id !== currentUser?.id || !user.stream) {
     throw new Error("Unauthorized");
   }
 

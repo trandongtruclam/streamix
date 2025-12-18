@@ -21,8 +21,8 @@ export function ResultCard({
 }) {
   return (
     <Link href={`/${data.user.username}`}>
-      <div className="w-full flex gap-x-4">
-        <div className="relative h-[9rem] w-[16rem]">
+      <div className="group w-full flex gap-x-4 p-2 rounded-lg hover:bg-[#26262c] transition-colors duration-200">
+        <div className="relative h-[9rem] w-[16rem] shrink-0">
           <Thumbnail
             src={data.thumbnailUrl}
             fallback={data.user.imageUrl}
@@ -30,15 +30,15 @@ export function ResultCard({
             username={data.user.username}
           />
         </div>
-        <div className="space-y-1">
+        <div className="space-y-1 min-w-0">
           <div className="flex items-center gap-x-2">
-            <p className="font-bold text-lg cursor-pointer hover:text-blue-500">
+            <p className="font-bold text-lg text-white group-hover:text-[#9147ff] transition-colors duration-200 truncate">
               {data.user.username}
             </p>
             <VerifiedMark />
           </div>
-          <p className="text-sm text-muted-foreground">{data.name}</p>
-          <p className="text-sm text-muted-foreground">
+          <p className="text-sm text-[#dedee3] truncate">{data.name}</p>
+          <p className="text-sm text-[#adadb8]">
             {formatDistanceToNow(new Date(data.updatedAt), {
               addSuffix: true,
             })}
@@ -51,14 +51,14 @@ export function ResultCard({
 
 export function ResultCardSkeleton() {
   return (
-    <div className="w-full flex gap-x-4">
-      <div className="relative h-[9rem] w-[16rem]">
+    <div className="w-full flex gap-x-4 p-2">
+      <div className="relative h-[9rem] w-[16rem] shrink-0">
         <ThumbnailSkeleton />
       </div>
       <div className="space-y-2">
-        <Skeleton className="h-4 w-32" />
-        <Skeleton className="h-3 w-24" />
-        <Skeleton className="h-3 w-12" />
+        <Skeleton className="h-5 w-32 bg-[#35353b]" />
+        <Skeleton className="h-4 w-48 bg-[#35353b]" />
+        <Skeleton className="h-4 w-24 bg-[#35353b]" />
       </div>
     </div>
   );

@@ -1,17 +1,16 @@
-import { currentUser } from "@clerk/nextjs/server";
-
+import { getSession } from "@/lib/auth";
 import prisma from "@/lib/prisma";
 
 export const getSelf = async () => {
-  const self = await currentUser();
+  const session = await getSession();
 
-  if (!self || !self.username) {
+  if (!session) {
     throw new Error("Unauthorized");
   }
 
   const user = await prisma.user.findUnique({
     where: {
-      id: self.id,
+      id: session.id,
     },
   });
 
@@ -23,9 +22,9 @@ export const getSelf = async () => {
 };
 
 export const getSelfByUsername = async (username: string) => {
-  const self = await currentUser();
+  const session = await getSession();
 
-  if (!self || !self.username) {
+  if (!session) {
     throw new Error("Unauthorized");
   }
 
@@ -39,9 +38,13 @@ export const getSelfByUsername = async (username: string) => {
     throw new Error("User not found");
   }
 
-  if (self.username !== username) {
+  if (session.username !== username) {
     throw new Error("Unauthorized");
   }
 
   return user;
+};
+
+export const getCurrentUser = async () => {
+  return await getSession();
 };

@@ -37,3 +37,8 @@ export type Follow = Prisma.FollowModel
  * 
  */
 export type Block = Prisma.BlockModel
+/**
+ * Model Session
+ * 
+ */
+export type Session = Prisma.SessionModel

@@ -6,7 +6,10 @@ function Skeleton({
 }: Readonly<React.HTMLAttributes<HTMLDivElement>>) {
   return (
     <div
-      className={cn("animate-pulse rounded-md bg-muted", className)}
+      className={cn(
+        "animate-pulse rounded-md bg-[#35353b]",
+        className
+      )}
       {...props}
     />
   );

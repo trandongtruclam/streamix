@@ -1,12 +1,19 @@
 "use server";
 
-import { Stream } from "@prisma/client";
 import { revalidatePath } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { getSelf } from "@/lib/auth-service";
 
-export const updateStream = async (values: Partial<Stream>) => {
+interface StreamUpdateData {
+  name?: string;
+  thumbnailUrl?: string | null;
+  isChatEnabled?: boolean;
+  isChatFollowersOnly?: boolean;
+  isChatDelayed?: boolean;
+}
+
+export const updateStream = async (values: StreamUpdateData) => {
   try {
     const self = await getSelf();
     const selfStream = await prisma.stream.findUnique({

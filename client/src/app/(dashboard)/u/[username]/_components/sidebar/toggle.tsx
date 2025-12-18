@@ -17,22 +17,28 @@ export function Toggle() {
   return (
     <>
       {collapsed && (
-        <div className="w-full hidden lg:flex items-center justify-center pt-4 mb-4">
+        <div className="w-full hidden lg:flex items-center justify-center py-4">
           <Hint label={label} side="right" asChild>
-            <Button onClick={onExpand} variant="ghost" className="h-auto p-2">
+            <Button 
+              onClick={onExpand} 
+              variant="ghost" 
+              className="h-8 w-8 p-0 text-[#adadb8] hover:text-white hover:bg-[#35353b] rounded-md transition-all duration-200"
+            >
               <ArrowRightFromLine className="h-4 w-4" />
             </Button>
           </Hint>
         </div>
       )}
       {!collapsed && (
-        <div className="p-3 pl-6 mb-2 hidden lg:flex items-center w-full">
-          <p className="font-semibold text-primary">Dashboard</p>
+        <div className="p-3 pl-4 hidden lg:flex items-center w-full border-b border-[#2f2f35]">
+          <p className="text-sm font-semibold text-white uppercase tracking-wider">
+            Dashboard
+          </p>
           <Hint label={label} side="right" asChild>
             <Button
               onClick={onCollapse}
               variant="ghost"
-              className="h-auto p-2 ml-auto"
+              className="h-7 w-7 p-0 ml-auto text-[#adadb8] hover:text-white hover:bg-[#35353b] rounded-md transition-all duration-200"
             >
               <ArrowLeftFromLine className="h-4 w-4" />
             </Button>

@@ -20,7 +20,7 @@ export function Thumbnail({
 
   if (!src) {
     content = (
-      <div className="bg-background flex flex-col items-center justify-center gap-y-4 h-full w-full transition-transform group-hover:translate-x-2 group-hover:-translate-y-2 rounded-md">
+      <div className="bg-gradient-to-br from-[#26262c] to-[#1a1a1d] flex flex-col items-center justify-center gap-y-4 h-full w-full transition-transform duration-300 group-hover:translate-x-2 group-hover:-translate-y-2 rounded-md">
         <UserAvatar
           size="lg"
           showBadge
@@ -28,6 +28,9 @@ export function Thumbnail({
           imageUrl={fallback}
           isLive={isLive}
         />
+        {!isLive && (
+          <span className="text-[#adadb8] text-xs font-medium">Offline</span>
+        )}
       </div>
     );
   } else {
@@ -36,28 +39,44 @@ export function Thumbnail({
         src={src}
         fill
         alt="Thumbnail"
-        className="object-cover transition-transform group-hover:translate-x-2 group-hover:-translate-y-2 rounded-md"
+        className="object-cover transition-transform duration-300 group-hover:translate-x-2 group-hover:-translate-y-2 rounded-md"
       />
     );
   }
 
   return (
-    <div className="group aspect-video relative rounded-md cursor-pointer">
-      <div className="rounded-md absolute inset-0 bg-blue-600 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center" />
+    <div className="group aspect-video relative rounded-md cursor-pointer overflow-hidden">
+      {/* Purple background that shows on hover */}
+      <div className="rounded-md absolute inset-0 bg-gradient-to-r from-[#9147ff] to-[#bf94ff] opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
       {content}
-      {isLive && src && (
-        <div className="absolute top-2 left-2 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform">
+      
+      {/* Live badge */}
+      {isLive && (
+        <div className="absolute top-2 left-2 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform duration-300 z-10">
           <LiveBadge />
         </div>
       )}
+      
+      {/* Stream duration or uptime indicator */}
+      {isLive && (
+        <div className="absolute top-2 right-2 group-hover:translate-x-2 group-hover:-translate-y-2 transition-transform duration-300 z-10">
+          <div className="bg-black/70 backdrop-blur-sm px-1.5 py-0.5 rounded text-[10px] font-medium text-white flex items-center gap-x-1">
+            <span className="w-1.5 h-1.5 rounded-full bg-[#eb0400] animate-pulse" />
+            LIVE
+          </div>
+        </div>
+      )}
+      
+      {/* Hover overlay with gradient */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-md z-[5] pointer-events-none" />
     </div>
   );
 }
 
 export function ThumbnailSkeleton() {
   return (
-    <div className="group aspect-video relative rounded-xl cursor-pointer">
-      <Skeleton className="h-full w-full" />
+    <div className="group aspect-video relative rounded-md cursor-pointer overflow-hidden">
+      <Skeleton className="h-full w-full bg-[#35353b]" />
     </div>
   );
 }
