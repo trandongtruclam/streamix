@@ -4,7 +4,6 @@ import { Clapperboard } from "lucide-react";
 import { SignInButton, UserButton } from "@clerk/nextjs";
 import { currentUser } from "@clerk/nextjs/server";
 
-
 import { Button } from "@/components/ui/button";
 
 export async function Actions() {
@@ -19,7 +18,7 @@ export async function Actions() {
       )}
       {!!user && (
         <div className="flex items-center gap-x-4">
-          <Button
+          {/* <Button
             size="sm"
             variant="ghost"
             className="text-muted-foreground hover:text-primary"
@@ -29,8 +28,21 @@ export async function Actions() {
               <Clapperboard className="h-5 w-5 lg:mr-2" />
               <span className="hidden lg:block">Dashboard</span>
             </Link>
-          </Button>
-          <UserButton/>
+          </Button> */}
+          {user.username && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="text-muted-foreground hover:text-primary"
+              asChild
+            >
+              <Link href={`/u/${user.username}`}>
+                <Clapperboard className="h-5 w-5 lg:mr-2" />
+                <span className="hidden lg:block">Dashboard</span>
+              </Link>
+            </Button>
+          )}
+          <UserButton />
         </div>
       )}
     </div>

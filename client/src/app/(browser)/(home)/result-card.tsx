@@ -5,3 +5,4 @@ export function ResultCard() {
 export function ResultCardSkeleton() {
   return <p>Result card is loading...</p>;
 }
+  
