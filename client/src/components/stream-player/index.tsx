@@ -1,7 +1,11 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef } from "react";
-import { LiveKitRoom, useRoomContext } from "@livekit/components-react";
+import {
+  LiveKitRoom,
+  useRoomContext,
+  useConnectionState,
+} from "@livekit/components-react";
 import { RoomEvent, ConnectionState } from "livekit-client";
 
 import { useViewerToken } from "@/hooks/use-viewer-token";
@@ -57,7 +61,7 @@ export function StreamPlayer({
 
   // Track if component is mounted to prevent unnecessary disconnects
   const isMountedRef = useRef(true);
-  
+
   useEffect(() => {
     isMountedRef.current = true;
     return () => {
@@ -150,7 +154,7 @@ function StreamPlayerContent({
 
   return (
     <>
-      <div 
+      <div
         className={cn(
           "col-span-1 lg:col-span-2 2xl:col-span-5 lg:overflow-y-auto hidden-scrollbar",
           collapsed && "lg:col-span-1 2xl:col-span-1"
@@ -158,7 +162,7 @@ function StreamPlayerContent({
       >
         {/* Video Section - Full width on top */}
         <Video hostName={user.username} hostIdentity={user.id} />
-        
+
         {/* Stream Info Below Video */}
         <div className="px-4 lg:px-6 py-4 space-y-6 pb-10">
           <Header
@@ -169,24 +173,24 @@ function StreamPlayerContent({
             name={stream.name}
             viewerIdentity={viewerIdentity}
           />
-          
+
           {/* Host Controls - Only visible to streamer */}
           <HostControls
             hostIdentity={user.id}
             viewerIdentity={viewerIdentity}
             roomName={user.id}
           />
-          
+
           {/* Divider */}
           <div className="h-px bg-[#2f2f35]" />
-          
+
           <InfoCard
             hostIdentity={user.id}
             viewerIdentity={viewerIdentity}
             name={stream.name}
             thumbnailUrl={stream.thumbnailUrl}
           />
-          
+
           <AboutCard
             hostName={user.username}
             hostIdentity={user.id}
@@ -196,7 +200,7 @@ function StreamPlayerContent({
           />
         </div>
       </div>
-      
+
       {/* Chat Section */}
       <div className={cn("col-span-1 h-full", collapsed && "hidden")}>
         <Chat
