@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import { Participant, Track } from "livekit-client";
 import { useTracks, useParticipants } from "@livekit/components-react";
-import { useEventListener } from "usehooks-ts";
 import { Eye } from "lucide-react";
 
 import { FullscreenControl } from "./fullscreen-control";
@@ -57,12 +56,17 @@ export function LiveVideo({ participant }: LiveVideoProps) {
     }
   };
 
-  const handleFullscreenChange = () => {
-    const isCurrentlyFullscreen = document.fullscreenElement !== null;
-    setIsFullscreen(isCurrentlyFullscreen);
-  };
+  useEffect(() => {
+    const handleFullscreenChange = () => {
+      const isCurrentlyFullscreen = document.fullscreenElement !== null;
+      setIsFullscreen(isCurrentlyFullscreen);
+    };
 
-  useEventListener("fullscreenchange", handleFullscreenChange, wrapperRef);
+    document.addEventListener("fullscreenchange", handleFullscreenChange);
+    return () => {
+      document.removeEventListener("fullscreenchange", handleFullscreenChange);
+    };
+  }, []);
 
   const tracks = useTracks([
     Track.Source.Camera,
@@ -89,18 +93,18 @@ export function LiveVideo({ participant }: LiveVideoProps) {
   }, [tracks]);
 
   return (
-    <div 
-      ref={wrapperRef} 
+    <div
+      ref={wrapperRef}
       className="relative h-full flex bg-black cursor-pointer"
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(false)}
       onClick={toggleMute}
     >
       <video ref={videoRef} width="100%" className="object-contain" />
-      
+
       {/* Live Reactions Overlay - Flying emojis */}
       <LiveReactions isOverlay />
-      
+
       {/* Top badges - always visible */}
       <div className="absolute top-4 left-4 z-20 flex items-center gap-2">
         <LiveBadge />
@@ -112,25 +116,25 @@ export function LiveVideo({ participant }: LiveVideoProps) {
           </span>
         </div>
       </div>
-      
+
       {/* Controls overlay */}
-      <div 
+      <div
         className={`absolute inset-0 transition-opacity duration-300 ${
-          showControls ? 'opacity-100' : 'opacity-0'
+          showControls ? "opacity-100" : "opacity-0"
         }`}
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top gradient */}
         <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-black/70 to-transparent pointer-events-none" />
-        
+
         {/* Bottom controls gradient */}
         <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/90 via-black/50 to-transparent pointer-events-none" />
-        
+
         {/* Reaction bar - right side */}
         <div className="absolute right-4 bottom-20 z-30">
           <ReactionBar />
         </div>
-        
+
         {/* Progress bar placeholder (for live, it's always full) */}
         <div className="absolute bottom-14 left-4 right-4">
           <div className="h-1 bg-white/30 rounded-full overflow-hidden">
@@ -139,7 +143,7 @@ export function LiveVideo({ participant }: LiveVideoProps) {
             </div>
           </div>
         </div>
-        
+
         {/* Bottom controls */}
         <div className="absolute bottom-0 flex h-14 w-full items-center justify-between px-4 gap-x-4">
           <div className="flex items-center gap-x-2">
@@ -150,7 +154,7 @@ export function LiveVideo({ participant }: LiveVideoProps) {
             />
             <span className="text-white text-sm font-medium ml-2">LIVE</span>
           </div>
-          
+
           <div className="flex items-center gap-x-2">
             {/* Quality Selector */}
             <QualitySelector hostIdentity={participant.identity} />
@@ -161,7 +165,7 @@ export function LiveVideo({ participant }: LiveVideoProps) {
           </div>
         </div>
       </div>
-      
+
       {/* Click to unmute hint */}
       {volume === 0 && !showControls && (
         <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-black/80 backdrop-blur-sm px-3 py-1.5 rounded-lg text-white text-sm font-medium animate-pulse">
