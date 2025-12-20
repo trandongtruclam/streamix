@@ -1,6 +1,6 @@
 import React from "react";
 import Link from "next/link";
-import { User } from "@prisma/client";
+import { User } from "../../../../generated/prisma/client";
 
 import { Thumbnail, ThumbnailSkeleton } from "@/components/thumbnail";
 import { UserAvatar, UserAvatarSkeleton } from "@/components/user-avatar";
@@ -32,7 +32,7 @@ export function ResultCard({
             isLive={data.isLive}
           />
           <div className="flex flex-col overflow-hidden min-w-0 flex-1">
-            <p className="truncate text-sm font-semibold text-white group-hover:text-[#bf94ff] transition-colors duration-200">
+            <p className="truncate text-sm font-semibold text-white group-hover:text-twitch-purple-light transition-colors duration-200">
               {data.name}
             </p>
             <p className="text-[#adadb8] text-sm truncate hover:text-[#dedee3] transition-colors cursor-pointer">

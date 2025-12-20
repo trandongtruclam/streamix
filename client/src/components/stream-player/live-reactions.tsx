@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useDataChannel } from "@livekit/components-react";
+import { useDataChannel, ReceivedMessage } from "@livekit/components-react";
 import { motion, AnimatePresence } from "motion/react";
 import { Heart, ThumbsUp, PartyPopper, Flame, Star } from "lucide-react";
 
@@ -33,36 +33,39 @@ const decoder = new TextDecoder();
 
 export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
   const [flyingReactions, setFlyingReactions] = useState<FlyingReaction[]>([]);
-  
-  // Handle incoming reactions from other viewers
-  const onMessage = useCallback((payload: Uint8Array) => {
-    try {
-      const message = JSON.parse(decoder.decode(payload));
-      if (message.type === "reaction") {
-        addFlyingReaction(message.emoji);
-      }
-    } catch (e) {
-      console.error("Failed to parse reaction message", e);
-    }
-  }, []);
 
-  const { send } = useDataChannel("reactions", onMessage);
-
-  const addFlyingReaction = (emoji: string) => {
+  const addFlyingReaction = useCallback((emoji: string) => {
     const newReaction: FlyingReaction = {
       id: `${Date.now()}-${Math.random()}`,
       emoji,
       x: Math.random() * 80 + 10, // Random position 10-90%
       startY: 100,
     };
-    
+
     setFlyingReactions((prev) => [...prev, newReaction]);
-    
+
     // Remove reaction after animation completes
     setTimeout(() => {
       setFlyingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
     }, 3000);
-  };
+  }, []);
+
+  // Handle incoming reactions from other viewers
+  const onMessage = useCallback(
+    (msg: ReceivedMessage<"reactions">) => {
+      try {
+        const message = JSON.parse(decoder.decode(msg.payload));
+        if (message.type === "reaction") {
+          addFlyingReaction(message.emoji);
+        }
+      } catch (e) {
+        console.error("Failed to parse reaction message", e);
+      }
+    },
+    [addFlyingReaction]
+  );
+
+  const { send } = useDataChannel("reactions", onMessage);
 
   const handleReaction = (emoji: string) => {
     // Send to other viewers via DataChannel
@@ -70,7 +73,7 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
       const message = JSON.stringify({ type: "reaction", emoji });
       send(encoder.encode(message), { reliable: true });
     }
-    
+
     // Show locally immediately
     addFlyingReaction(emoji);
   };
@@ -83,20 +86,20 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
           {flyingReactions.map((reaction) => (
             <motion.div
               key={reaction.id}
-              initial={{ 
-                opacity: 1, 
+              initial={{
+                opacity: 1,
                 y: "100vh",
                 x: `${reaction.x}%`,
                 scale: 0.5,
               }}
-              animate={{ 
+              animate={{
                 opacity: [1, 1, 0],
                 y: "-20vh",
                 scale: [0.5, 1.2, 1],
                 rotate: [0, -10, 10, -5, 5, 0],
               }}
               exit={{ opacity: 0 }}
-              transition={{ 
+              transition={{
                 duration: 3,
                 ease: "easeOut",
               }}
@@ -135,16 +138,34 @@ export function ReactionBar() {
   const [showAll, setShowAll] = useState(false);
   const [flyingReactions, setFlyingReactions] = useState<FlyingReaction[]>([]);
 
-  const onMessage = useCallback((payload: Uint8Array) => {
-    try {
-      const message = JSON.parse(decoder.decode(payload));
-      if (message.type === "reaction") {
-        addFlyingReaction(message.emoji);
-      }
-    } catch (e) {
-      console.error("Failed to parse reaction message", e);
-    }
+  const addFlyingReaction = useCallback((emoji: string) => {
+    const newReaction: FlyingReaction = {
+      id: `${Date.now()}-${Math.random()}`,
+      emoji,
+      x: Math.random() * 60 + 20,
+      startY: 100,
+    };
+
+    setFlyingReactions((prev) => [...prev, newReaction]);
+
+    setTimeout(() => {
+      setFlyingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
+    }, 3000);
   }, []);
+
+  const onMessage = useCallback(
+    (msg: ReceivedMessage<"reactions">) => {
+      try {
+        const message = JSON.parse(decoder.decode(msg.payload));
+        if (message.type === "reaction") {
+          addFlyingReaction(message.emoji);
+        }
+      } catch (e) {
+        console.error("Failed to parse reaction message", e);
+      }
+    },
+    [addFlyingReaction]
+  );
 
   const { send } = useDataChannel("reactions", onMessage);
 
@@ -155,9 +176,9 @@ export function ReactionBar() {
       x: Math.random() * 60 + 20,
       startY: 100,
     };
-    
+
     setFlyingReactions((prev) => [...prev, newReaction]);
-    
+
     setTimeout(() => {
       setFlyingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
     }, 3000);
@@ -182,12 +203,12 @@ export function ReactionBar() {
           {flyingReactions.map((reaction) => (
             <motion.div
               key={reaction.id}
-              initial={{ 
-                opacity: 1, 
+              initial={{
+                opacity: 1,
                 y: 0,
                 scale: 0.5,
               }}
-              animate={{ 
+              animate={{
                 opacity: [1, 1, 0],
                 y: -300,
                 scale: [0.5, 1.5, 1],
@@ -216,7 +237,7 @@ export function ReactionBar() {
             <span className="text-lg">{reaction.emoji}</span>
           </motion.button>
         ))}
-        
+
         <div className="relative">
           <motion.button
             onClick={() => setShowAll(!showAll)}
@@ -226,7 +247,7 @@ export function ReactionBar() {
           >
             <span className="text-sm">+{moreReactions.length}</span>
           </motion.button>
-          
+
           {/* More reactions popup */}
           <AnimatePresence>
             {showAll && (
@@ -258,3 +279,4 @@ export function ReactionBar() {
     </div>
   );
 }
+

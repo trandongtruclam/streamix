@@ -529,3 +529,4 @@ export function VodPlayer({ src, poster, title, autoPlay = false }: VodPlayerPro
     </div>
   );
 }
+

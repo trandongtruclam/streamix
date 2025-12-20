@@ -175,3 +175,4 @@ export async function clearSessionCookie(): Promise<void> {
 export function getSessionCookieName(): string {
   return SESSION_COOKIE_NAME;
 }
+

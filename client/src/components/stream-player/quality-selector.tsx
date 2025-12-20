@@ -243,3 +243,4 @@ export function QualityBadge({ hostIdentity }: { hostIdentity: string }) {
     </div>
   );
 }
+

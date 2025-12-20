@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { User } from "@prisma/client";
+import { User } from "../../../../../generated/prisma/client";
+
 import { Users } from "lucide-react";
 
 import { useSidebar } from "@/store/use-sidebar";

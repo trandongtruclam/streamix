@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Follow, User } from "@prisma/client";
+import { Follow, User } from "../../../../../generated/prisma/client";
 
 import { useSidebar } from "@/store/use-sidebar";
 

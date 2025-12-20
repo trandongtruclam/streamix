@@ -10,7 +10,7 @@ export function URLCard({ value }: { value: string | null }) {
     <div className="rounded-xl bg-[#1f1f23] border border-[#2f2f35] p-5">
       <div className="flex items-center gap-x-4">
         <div className="p-3 bg-[#26262c] rounded-lg shrink-0">
-          <Server className="h-5 w-5 text-[#9147ff]" />
+          <Server className="h-5 w-5 text-#9147ff" />
         </div>
         <div className="flex-1 min-w-0">
           <p className="font-semibold text-white text-sm mb-2">Server URL</p>
