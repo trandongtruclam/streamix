@@ -9,8 +9,7 @@
     "lint": "eslint",
     "format": "prettier --check --ignore-path .gitignore .",
     "format:fix": "prettier --write --ignore-path .gitignore .",
-    "postinstall": "prisma generate",
-    "prepare": "husky install"
+    "postinstall": "prisma generate"
   },
   "dependencies": {
     "@livekit/components-react": "^2.9.17",
