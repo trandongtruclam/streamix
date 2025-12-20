@@ -46,12 +46,18 @@ interface QualitySelectorProps {
   hostIdentity: string;
 }
 
-export function QualitySelector({ hostIdentity }: QualitySelectorProps) {
+// Inner component that uses hooks - only rendered when participant exists
+function QualitySelectorInner({ 
+  participant, 
+  hostIdentity 
+}: { 
+  participant: NonNullable<ReturnType<typeof useRemoteParticipant>>;
+  hostIdentity: string;
+}) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState<string>("auto");
   const [currentBitrate, setCurrentBitrate] = useState<number>(0);
   
-  const participant = useRemoteParticipant(hostIdentity);
   const { quality: connectionQuality } = useConnectionQualityIndicator({ participant });
   
   const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare])
@@ -212,9 +218,23 @@ export function QualitySelector({ hostIdentity }: QualitySelectorProps) {
   );
 }
 
-// Compact quality badge for overlay
-export function QualityBadge({ hostIdentity }: { hostIdentity: string }) {
+export function QualitySelector({ hostIdentity }: QualitySelectorProps) {
   const participant = useRemoteParticipant(hostIdentity);
+  
+  // Don't render if participant is not available
+  if (!participant) {
+    return null;
+  }
+  
+  return <QualitySelectorInner participant={participant} hostIdentity={hostIdentity} />;
+}
+
+// Compact quality badge for overlay
+function QualityBadgeInner({ 
+  participant 
+}: { 
+  participant: NonNullable<ReturnType<typeof useRemoteParticipant>>;
+}) {
   const { quality } = useConnectionQualityIndicator({ participant });
   
   const getQualityColor = () => {
@@ -244,4 +264,12 @@ export function QualityBadge({ hostIdentity }: { hostIdentity: string }) {
   );
 }
 
-
+export function QualityBadge({ hostIdentity }: { hostIdentity: string }) {
+  const participant = useRemoteParticipant(hostIdentity);
+  
+  if (!participant) {
+    return null;
+  }
+  
+  return <QualityBadgeInner participant={participant} />;
+}
