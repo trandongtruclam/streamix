@@ -1,7 +1,12 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useDataChannel, ReceivedMessage, useConnectionState, useRoomContext } from "@livekit/components-react";
+import {
+  useDataChannel,
+  useConnectionState,
+  useRoomContext,
+} from "@livekit/components-react";
+import type { ReceivedDataMessage } from "@livekit/components-core";
 import { ConnectionState } from "livekit-client";
 import { motion, AnimatePresence } from "motion/react";
 import { Heart, ThumbsUp, PartyPopper, Flame, Star } from "lucide-react";
@@ -55,7 +60,7 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
 
   // Handle incoming reactions from other viewers
   const onMessage = useCallback(
-    (msg: ReceivedMessage<"reactions">) => {
+    (msg: ReceivedDataMessage) => {
       try {
         const message = JSON.parse(decoder.decode(msg.payload));
         if (message.type === "reaction") {
@@ -73,7 +78,10 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
   // Debug: Log data channel status
   useEffect(() => {
     if (connectionState === ConnectionState.Connected) {
-      console.log("LiveReactions: Room connected, send function available:", !!send);
+      console.log(
+        "LiveReactions: Room connected, send function available:",
+        !!send
+      );
     }
   }, [connectionState, send]);
 
@@ -92,7 +100,14 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
         console.error("Failed to send reaction", e);
       }
     } else {
-      console.warn("LiveReactions: Cannot send reaction - send:", !!send, "state:", connectionState, "room:", !!room);
+      console.warn(
+        "LiveReactions: Cannot send reaction - send:",
+        !!send,
+        "state:",
+        connectionState,
+        "room:",
+        !!room
+      );
     }
   };
 
@@ -174,7 +189,7 @@ export function ReactionBar() {
   }, []);
 
   const onMessage = useCallback(
-    (msg: ReceivedMessage<"reactions">) => {
+    (msg: ReceivedDataMessage) => {
       try {
         const message = JSON.parse(decoder.decode(msg.payload));
         if (message.type === "reaction") {
@@ -192,7 +207,10 @@ export function ReactionBar() {
   // Debug: Log data channel status
   useEffect(() => {
     if (connectionState === ConnectionState.Connected) {
-      console.log("ReactionBar: Room connected, send function available:", !!send);
+      console.log(
+        "ReactionBar: Room connected, send function available:",
+        !!send
+      );
     }
   }, [connectionState, send]);
 
@@ -211,7 +229,14 @@ export function ReactionBar() {
         console.error("Failed to send reaction", e);
       }
     } else {
-      console.warn("ReactionBar: Cannot send reaction - send:", !!send, "state:", connectionState, "room:", !!room);
+      console.warn(
+        "ReactionBar: Cannot send reaction - send:",
+        !!send,
+        "state:",
+        connectionState,
+        "room:",
+        !!room
+      );
     }
   };
 
