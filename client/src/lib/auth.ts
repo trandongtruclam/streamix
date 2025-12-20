@@ -1,8 +1,10 @@
 import { cookies } from "next/headers";
 import { jwtDecode } from "jwt-decode";
 import prisma from "@/lib/prisma";
-
-const SESSION_COOKIE_NAME = "streamix_session";
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_EXPIRATION_SECONDS,
+} from "@/lib/constants";
 
 export interface JWTPayload {
   userId: string;
@@ -23,7 +25,9 @@ export interface SessionUser {
 // Simple hash function for passwords (in production use bcrypt)
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password + process.env.PASSWORD_SALT || "streamix_salt");
+  const data = encoder.encode(
+    password + process.env.PASSWORD_SALT || "streamix_salt"
+  );
   const hashBuffer = await crypto.subtle.digest("SHA-256", data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -38,9 +42,11 @@ export async function verifyPassword(
 }
 
 // Generate a simple JWT token
-export function generateToken(payload: Omit<JWTPayload, "exp" | "iat">): string {
+export function generateToken(
+  payload: Omit<JWTPayload, "exp" | "iat">
+): string {
   const now = Math.floor(Date.now() / 1000);
-  const exp = now + 60 * 60 * 24 * 7; // 7 days
+  const exp = now + SESSION_EXPIRATION_SECONDS;
 
   const tokenPayload: JWTPayload = {
     ...payload,
@@ -96,7 +102,7 @@ export async function createSession(userId: string): Promise<string> {
     data: {
       userId: user.id,
       token,
-      expiresAt: new Date(Date.now() + 1000 * 60 * 60 * 24 * 7), // 7 days
+      expiresAt: new Date(Date.now() + 1000 * SESSION_EXPIRATION_SECONDS),
     },
   });
 
@@ -162,7 +168,7 @@ export async function setSessionCookie(token: string): Promise<void> {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 60 * 60 * 24 * 7, // 7 days
+    maxAge: SESSION_EXPIRATION_SECONDS,
     path: "/",
   });
 }
@@ -172,8 +178,4 @@ export async function clearSessionCookie(): Promise<void> {
   cookieStore.delete(SESSION_COOKIE_NAME);
 }
 
-export function getSessionCookieName(): string {
-  return SESSION_COOKIE_NAME;
-}
-
-
+// getSessionCookieName is no longer needed - use SESSION_COOKIE_NAME from constants directly

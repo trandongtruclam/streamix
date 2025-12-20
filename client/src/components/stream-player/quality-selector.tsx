@@ -23,33 +23,7 @@ import {
   SignalHigh,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
-
-const QUALITY_OPTIONS = [
-  {
-    id: "auto",
-    label: "Auto",
-    description: "Best quality for your connection",
-    quality: null,
-  },
-  {
-    id: "high",
-    label: "1080p",
-    description: "Full HD",
-    quality: VideoQuality.HIGH,
-  },
-  {
-    id: "medium",
-    label: "720p",
-    description: "HD",
-    quality: VideoQuality.MEDIUM,
-  },
-  {
-    id: "low",
-    label: "480p",
-    description: "Standard",
-    quality: VideoQuality.LOW,
-  },
-];
+import { QUALITY_OPTIONS, TIME, BITRATE } from "@/lib/constants";
 
 interface QualitySelectorProps {
   hostIdentity: string;
@@ -117,7 +91,7 @@ function QualitySelectorInner({
       if (stats) {
         setCurrentBitrate(stats);
       }
-    }, 1000);
+    }, TIME.BITRATE_UPDATE_INTERVAL);
 
     return () => clearInterval(interval);
   }, [videoTrack]);
@@ -143,11 +117,11 @@ function QualitySelectorInner({
   };
 
   const formatBitrate = (bitrate: number) => {
-    if (bitrate >= 1000000) {
-      return `${(bitrate / 1000000).toFixed(1)} Mbps`;
+    if (bitrate >= BITRATE.MBPS_THRESHOLD) {
+      return `${(bitrate / BITRATE.MBPS_THRESHOLD).toFixed(1)} Mbps`;
     }
-    if (bitrate >= 1000) {
-      return `${(bitrate / 1000).toFixed(0)} Kbps`;
+    if (bitrate >= BITRATE.KBPS_THRESHOLD) {
+      return `${(bitrate / BITRATE.KBPS_THRESHOLD).toFixed(0)} Kbps`;
     }
     return `${bitrate} bps`;
   };

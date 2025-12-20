@@ -19,51 +19,31 @@ import { motion, AnimatePresence } from "motion/react";
 import { toast } from "sonner";
 
 import { startRestream, stopRestream } from "@/actions/recording";
+import { PLATFORMS_BASE, type Platform } from "@/lib/constants";
 
 interface RestreamControlProps {
   roomName: string;
   isHost: boolean;
 }
 
-interface Platform {
-  id: "youtube" | "facebook" | "twitch" | "custom";
-  name: string;
-  icon: React.ElementType;
-  color: string;
-  rtmpUrl: string;
-  streamKeyPlaceholder: string;
-  helpUrl: string;
-}
-
-const PLATFORMS: Platform[] = [
-  {
-    id: "youtube",
-    name: "YouTube Live",
-    icon: Youtube,
-    color: "#ff0000",
-    rtmpUrl: "rtmp://a.rtmp.youtube.com/live2",
-    streamKeyPlaceholder: "xxxx-xxxx-xxxx-xxxx-xxxx",
-    helpUrl: "https://studio.youtube.com/channel/UC/livestreaming",
-  },
-  {
-    id: "facebook",
-    name: "Facebook Live",
-    icon: Facebook,
-    color: "#1877f2",
-    rtmpUrl: "rtmps://live-api-s.facebook.com:443/rtmp",
-    streamKeyPlaceholder: "FB-xxxx-xxxx-xxxx",
-    helpUrl: "https://www.facebook.com/live/producer",
-  },
-  {
-    id: "twitch",
-    name: "Twitch",
-    icon: Twitch,
-    color: "#9147ff",
-    rtmpUrl: "rtmp://live.twitch.tv/live",
-    streamKeyPlaceholder: "live_xxxxxxxxxx",
-    helpUrl: "https://dashboard.twitch.tv/settings/stream",
-  },
-];
+// Add icons to platform base config
+const PLATFORMS: Platform[] = PLATFORMS_BASE.map((platform) => {
+  let icon: React.ElementType;
+  switch (platform.id) {
+    case "youtube":
+      icon = Youtube;
+      break;
+    case "facebook":
+      icon = Facebook;
+      break;
+    case "twitch":
+      icon = Twitch;
+      break;
+    default:
+      icon = Share2;
+  }
+  return { ...platform, icon };
+});
 
 interface ActiveRestream {
   platform: string;
@@ -366,5 +346,3 @@ export function RestreamControl({ roomName, isHost }: RestreamControlProps) {
     </div>
   );
 }
-
-

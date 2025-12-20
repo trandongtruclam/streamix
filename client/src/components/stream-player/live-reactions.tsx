@@ -9,18 +9,7 @@ import {
 import type { ReceivedDataMessage } from "@livekit/components-core";
 import { ConnectionState } from "livekit-client";
 import { motion, AnimatePresence } from "motion/react";
-import { Heart, ThumbsUp, PartyPopper, Flame, Star } from "lucide-react";
-
-const REACTIONS = [
-  { id: "heart", emoji: "❤️", icon: Heart, color: "#ff3b5c" },
-  { id: "thumbsup", emoji: "👍", icon: ThumbsUp, color: "#3b82f6" },
-  { id: "party", emoji: "🎉", icon: PartyPopper, color: "#f59e0b" },
-  { id: "fire", emoji: "🔥", icon: Flame, color: "#ef4444" },
-  { id: "star", emoji: "⭐", icon: Star, color: "#eab308" },
-  { id: "laugh", emoji: "😂", icon: null, color: "#fbbf24" },
-  { id: "wow", emoji: "😮", icon: null, color: "#8b5cf6" },
-  { id: "clap", emoji: "👏", icon: null, color: "#10b981" },
-];
+import { REACTIONS, TIME, DEFAULTS } from "@/lib/constants";
 
 interface FlyingReaction {
   id: string;
@@ -46,7 +35,9 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
     const newReaction: FlyingReaction = {
       id: `${Date.now()}-${Math.random()}`,
       emoji,
-      x: Math.random() * 80 + 10, // Random position 10-90%
+      x:
+        Math.random() * (100 - DEFAULTS.REACTION_X_MIN * 2) +
+        DEFAULTS.REACTION_X_MIN, // Random position
       startY: 100,
     };
 
@@ -55,7 +46,7 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
     // Remove reaction after animation completes
     setTimeout(() => {
       setFlyingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
-    }, 3000);
+    }, TIME.REACTION_ANIMATION_DURATION);
   }, []);
 
   // Handle incoming reactions from other viewers
@@ -133,7 +124,7 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
               }}
               exit={{ opacity: 0 }}
               transition={{
-                duration: 3,
+                duration: TIME.REACTION_ANIMATION_DURATION / 1000,
                 ease: "easeOut",
               }}
               className="absolute text-4xl drop-shadow-lg"
@@ -177,7 +168,10 @@ export function ReactionBar() {
     const newReaction: FlyingReaction = {
       id: `${Date.now()}-${Math.random()}`,
       emoji,
-      x: Math.random() * 60 + 20,
+      x:
+        Math.random() *
+          (DEFAULTS.REACTION_BAR_X_MAX - DEFAULTS.REACTION_BAR_X_MIN) +
+        DEFAULTS.REACTION_BAR_X_MIN,
       startY: 100,
     };
 
@@ -262,7 +256,10 @@ export function ReactionBar() {
                 scale: [0.5, 1.5, 1],
               }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 2.5, ease: "easeOut" }}
+              transition={{
+                duration: TIME.REACTION_BAR_ANIMATION_DURATION / 1000,
+                ease: "easeOut",
+              }}
               className="absolute text-3xl"
               style={{ left: `${reaction.x}%` }}
             >

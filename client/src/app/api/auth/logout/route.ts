@@ -1,12 +1,13 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 
-import { deleteSession, getSessionCookieName, clearSessionCookie } from "@/lib/auth";
+import { deleteSession, clearSessionCookie } from "@/lib/auth";
+import { SESSION_COOKIE_NAME } from "@/lib/constants";
 
 export async function POST() {
   try {
     const cookieStore = await cookies();
-    const token = cookieStore.get(getSessionCookieName())?.value;
+    const token = cookieStore.get(SESSION_COOKIE_NAME)?.value;
 
     if (token) {
       await deleteSession(token);
@@ -23,5 +24,3 @@ export async function POST() {
     );
   }
 }
-
-
