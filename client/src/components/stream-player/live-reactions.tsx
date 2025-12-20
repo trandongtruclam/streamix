@@ -169,21 +169,6 @@ export function ReactionBar() {
 
   const { send } = useDataChannel("reactions", onMessage);
 
-  const addFlyingReaction = (emoji: string) => {
-    const newReaction: FlyingReaction = {
-      id: `${Date.now()}-${Math.random()}`,
-      emoji,
-      x: Math.random() * 60 + 20,
-      startY: 100,
-    };
-
-    setFlyingReactions((prev) => [...prev, newReaction]);
-
-    setTimeout(() => {
-      setFlyingReactions((prev) => prev.filter((r) => r.id !== newReaction.id));
-    }, 3000);
-  };
-
   const handleReaction = (emoji: string) => {
     if (send) {
       const message = JSON.stringify({ type: "reaction", emoji });
@@ -279,4 +264,3 @@ export function ReactionBar() {
     </div>
   );
 }
-

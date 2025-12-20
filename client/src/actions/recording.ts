@@ -95,7 +95,7 @@ export async function startRecording(roomName: string) {
     return {
       success: true,
       egressId: egress.egressId,
-      status: egress.status,
+      status: Number(egress.status),
     };
   } catch (error) {
     console.error("Failed to start recording:", error);
@@ -117,7 +117,7 @@ export async function stopRecording(egressId: string) {
 
     return {
       success: true,
-      status: result.status,
+      status: Number(result.status),
     };
   } catch (error) {
     console.error("Failed to stop recording:", error);
@@ -138,9 +138,9 @@ export async function listRecordings() {
 
     return egressList.map((egress) => ({
       id: egress.egressId,
-      status: egress.status,
-      startedAt: egress.startedAt,
-      endedAt: egress.endedAt,
+      status: Number(egress.status),
+      startedAt: egress.startedAt ? Number(egress.startedAt) : null,
+      endedAt: egress.endedAt ? Number(egress.endedAt) : null,
       roomName: egress.roomName,
     }));
   } catch (error) {
@@ -198,7 +198,7 @@ export async function startHlsStream(roomName: string) {
 
     return {
       success: true,
-      egressId: egress.egressId,
+      egressId: egress.egressId || "",
       hlsUrl: `${process.env.STORAGE_URL}/hls/${roomName}/${playlistName}/playlist.m3u8`,
     };
   } catch (error) {
@@ -244,7 +244,7 @@ export async function startRestream(
 
     return {
       success: true,
-      egressId: egress.egressId,
+      egressId: egress.egressId || "",
       platform,
     };
   } catch (error) {
@@ -281,10 +281,10 @@ export async function getEgressStatus(egressId: string) {
 
     return {
       id: egress.egressId,
-      status: egress.status,
-      startedAt: egress.startedAt,
-      endedAt: egress.endedAt,
-      error: egress.error,
+      status: Number(egress.status),
+      startedAt: egress.startedAt ? Number(egress.startedAt) : null,
+      endedAt: egress.endedAt ? Number(egress.endedAt) : null,
+      error: egress.error || null,
     };
   } catch (error) {
     console.error("Failed to get egress status:", error);

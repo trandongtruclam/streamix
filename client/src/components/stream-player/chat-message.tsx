@@ -7,8 +7,11 @@ import { format } from "date-fns";
 import { stringToColor } from "@/lib/utils";
 
 export function ChatMessage({ data }: { data: ReceivedChatMessage }) {
-  const color = stringToColor(data.from?.name || "");
-  const isHost = data.from?.name?.startsWith("host-");
+  // The identity contains "host-" prefix for hosts, name is the display username
+  const identity = data.from?.identity || "";
+  const displayName = data.from?.name || "";
+  const isHost = identity.startsWith("host-");
+  const color = stringToColor(displayName || identity);
 
   return (
     <div className="flex gap-2 px-2 py-1.5 rounded hover:bg-[#26262c]/50 transition-colors group animate-fade-in-up">
@@ -23,7 +26,7 @@ export function ChatMessage({ data }: { data: ReceivedChatMessage }) {
             className="text-sm font-bold cursor-pointer hover:underline"
             style={{ color: color }}
           >
-            {data.from?.name?.replace("host-", "")}
+            {displayName || identity}
           </span>
           <span className="text-[#666]">:</span>
         </span>

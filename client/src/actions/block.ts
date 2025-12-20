@@ -6,8 +6,14 @@ import { RoomServiceClient } from "livekit-server-sdk";
 import { blockUser, unblockUser } from "@/lib/block-service";
 import { getSelf } from "@/lib/auth-service";
 
+// Convert wss:// to https:// for API calls
+const getLiveKitApiUrl = () => {
+  const wsUrl = process.env.LIVEKIT_API_URL || "";
+  return wsUrl.replace("wss://", "https://").replace("ws://", "http://");
+};
+
 const roomService = new RoomServiceClient(
-  process.env.LIVEKIT_API_URL!,
+  getLiveKitApiUrl(),
   process.env.LIVEKIT_API_KEY,
   process.env.LIVEKIT_API_SECRET
 );

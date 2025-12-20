@@ -192,17 +192,19 @@ export function RecordingManager({ recordings }: { recordings: Recording[] }) {
 
 interface Recording {
   id: string;
-  status: string;
-  startedAt: bigint;
-  endedAt?: bigint;
+  status: number | string;
+  startedAt: number | null;
+  endedAt?: number | null;
   duration?: number;
   size?: number;
   url?: string;
 }
 
 function RecordingItem({ recording }: { recording: Recording }) {
-  const formatDate = (timestamp: bigint) => {
-    return new Date(Number(timestamp) / 1000000).toLocaleDateString("en-US", {
+  const formatDate = (timestamp: number | null) => {
+    if (!timestamp) return "—";
+    // LiveKit timestamps are in nanoseconds
+    return new Date(timestamp / 1000000).toLocaleDateString("en-US", {
       month: "short",
       day: "numeric",
       hour: "2-digit",
