@@ -1,42 +1,51 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { 
-  RemoteTrack, 
-  Track, 
+import {
+  Track,
   VideoQuality,
   ConnectionQuality,
+  RemoteTrackPublication,
 } from "livekit-client";
-import { 
-  useRemoteParticipant, 
+import {
+  useRemoteParticipant,
   useTracks,
   useConnectionQualityIndicator,
 } from "@livekit/components-react";
-import { Settings, Check, Wifi, WifiOff, Signal, SignalLow, SignalMedium, SignalHigh } from "lucide-react";
+import {
+  Settings,
+  Check,
+  Wifi,
+  WifiOff,
+  Signal,
+  SignalLow,
+  SignalMedium,
+  SignalHigh,
+} from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 
 const QUALITY_OPTIONS = [
-  { 
-    id: "auto", 
-    label: "Auto", 
+  {
+    id: "auto",
+    label: "Auto",
     description: "Best quality for your connection",
     quality: null,
   },
-  { 
-    id: "high", 
-    label: "1080p", 
+  {
+    id: "high",
+    label: "1080p",
     description: "Full HD",
     quality: VideoQuality.HIGH,
   },
-  { 
-    id: "medium", 
-    label: "720p", 
+  {
+    id: "medium",
+    label: "720p",
     description: "HD",
     quality: VideoQuality.MEDIUM,
   },
-  { 
-    id: "low", 
-    label: "480p", 
+  {
+    id: "low",
+    label: "480p",
     description: "Standard",
     quality: VideoQuality.LOW,
   },
@@ -47,58 +56,69 @@ interface QualitySelectorProps {
 }
 
 // Inner component that uses hooks - only rendered when participant exists
-function QualitySelectorInner({ 
-  participant, 
-  hostIdentity 
-}: { 
+function QualitySelectorInner({
+  participant,
+  hostIdentity,
+}: {
   participant: NonNullable<ReturnType<typeof useRemoteParticipant>>;
   hostIdentity: string;
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [selectedQuality, setSelectedQuality] = useState<string>("auto");
   const [currentBitrate, setCurrentBitrate] = useState<number>(0);
-  
-  const { quality: connectionQuality } = useConnectionQualityIndicator({ participant });
-  
-  const tracks = useTracks([Track.Source.Camera, Track.Source.ScreenShare])
-    .filter((track) => track.participant.identity === hostIdentity);
+
+  const { quality: connectionQuality } = useConnectionQualityIndicator({
+    participant,
+  });
+
+  const tracks = useTracks([
+    Track.Source.Camera,
+    Track.Source.ScreenShare,
+  ]).filter((track) => track.participant.identity === hostIdentity);
 
   const videoTrack = tracks.find(
-    (track) => track.source === Track.Source.Camera || track.source === Track.Source.ScreenShare
+    (track) =>
+      track.source === Track.Source.Camera ||
+      track.source === Track.Source.ScreenShare
   );
 
   // Update quality when selection changes
-  const handleQualityChange = useCallback((qualityId: string) => {
-    setSelectedQuality(qualityId);
-    
-    if (videoTrack?.publication?.track) {
-      const track = videoTrack.publication.track as RemoteTrack;
-      const option = QUALITY_OPTIONS.find(q => q.id === qualityId);
-      
-      if (option?.quality !== undefined && option?.quality !== null) {
-        // Set specific quality
-        track.setVideoQuality(option.quality);
-      } else {
-        // Auto quality - set to HIGH and let adaptive bitrate handle it
-        track.setVideoQuality(VideoQuality.HIGH);
+  const handleQualityChange = useCallback(
+    (qualityId: string) => {
+      setSelectedQuality(qualityId);
+
+      if (
+        videoTrack?.publication &&
+        videoTrack.publication instanceof RemoteTrackPublication
+      ) {
+        const publication = videoTrack.publication;
+        const option = QUALITY_OPTIONS.find((q) => q.id === qualityId);
+
+        if (option?.quality !== undefined && option?.quality !== null) {
+          // Set specific quality
+          publication.setVideoQuality(option.quality);
+        } else {
+          // Auto quality - set to HIGH and let adaptive bitrate handle it
+          publication.setVideoQuality(VideoQuality.HIGH);
+        }
       }
-    }
-    
-    setIsOpen(false);
-  }, [videoTrack]);
+
+      setIsOpen(false);
+    },
+    [videoTrack]
+  );
 
   // Track current bitrate
   useEffect(() => {
     if (!videoTrack?.publication?.track) return;
-    
+
     const interval = setInterval(() => {
-      // @ts-expect-error - accessing internal property for stats
       const stats = videoTrack.publication.track?.currentBitrate;
       if (stats) {
         setCurrentBitrate(stats);
       }
     }, 1000);
-    
+
     return () => clearInterval(interval);
   }, [videoTrack]);
 
@@ -118,7 +138,7 @@ function QualitySelectorInner({
   };
 
   const getCurrentQualityLabel = () => {
-    const option = QUALITY_OPTIONS.find(q => q.id === selectedQuality);
+    const option = QUALITY_OPTIONS.find((q) => q.id === selectedQuality);
     return option?.label || "Auto";
   };
 
@@ -141,18 +161,20 @@ function QualitySelectorInner({
         className="flex items-center gap-2 p-2 text-white hover:bg-white/20 rounded-md transition-colors"
       >
         <Settings className="h-5 w-5" />
-        <span className="text-xs hidden sm:inline">{getCurrentQualityLabel()}</span>
+        <span className="text-xs hidden sm:inline">
+          {getCurrentQualityLabel()}
+        </span>
       </motion.button>
 
       <AnimatePresence>
         {isOpen && (
           <>
             {/* Backdrop */}
-            <div 
-              className="fixed inset-0 z-40" 
+            <div
+              className="fixed inset-0 z-40"
               onClick={() => setIsOpen(false)}
             />
-            
+
             {/* Menu */}
             <motion.div
               initial={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -204,9 +226,14 @@ function QualitySelectorInner({
                 <div className="flex items-center gap-2 text-xs text-[#adadb8]">
                   <Wifi className="h-3 w-3" />
                   <span>
-                    Connection: {connectionQuality === ConnectionQuality.Excellent ? "Excellent" :
-                      connectionQuality === ConnectionQuality.Good ? "Good" :
-                      connectionQuality === ConnectionQuality.Poor ? "Poor" : "Unknown"}
+                    Connection:{" "}
+                    {connectionQuality === ConnectionQuality.Excellent
+                      ? "Excellent"
+                      : connectionQuality === ConnectionQuality.Good
+                      ? "Good"
+                      : connectionQuality === ConnectionQuality.Poor
+                      ? "Poor"
+                      : "Unknown"}
                   </span>
                 </div>
               </div>
@@ -220,23 +247,28 @@ function QualitySelectorInner({
 
 export function QualitySelector({ hostIdentity }: QualitySelectorProps) {
   const participant = useRemoteParticipant(hostIdentity);
-  
+
   // Don't render if participant is not available
   if (!participant) {
     return null;
   }
-  
-  return <QualitySelectorInner participant={participant} hostIdentity={hostIdentity} />;
+
+  return (
+    <QualitySelectorInner
+      participant={participant}
+      hostIdentity={hostIdentity}
+    />
+  );
 }
 
 // Compact quality badge for overlay
-function QualityBadgeInner({ 
-  participant 
-}: { 
+function QualityBadgeInner({
+  participant,
+}: {
   participant: NonNullable<ReturnType<typeof useRemoteParticipant>>;
 }) {
   const { quality } = useConnectionQualityIndicator({ participant });
-  
+
   const getQualityColor = () => {
     switch (quality) {
       case ConnectionQuality.Excellent:
@@ -256,9 +288,13 @@ function QualityBadgeInner({
     <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-sm px-2 py-1 rounded-md">
       <div className={`h-2 w-2 rounded-full ${getQualityColor()}`} />
       <span className="text-white text-xs font-medium">
-        {quality === ConnectionQuality.Excellent ? "HD" :
-         quality === ConnectionQuality.Good ? "HD" :
-         quality === ConnectionQuality.Poor ? "SD" : "..."}
+        {quality === ConnectionQuality.Excellent
+          ? "HD"
+          : quality === ConnectionQuality.Good
+          ? "HD"
+          : quality === ConnectionQuality.Poor
+          ? "SD"
+          : "..."}
       </span>
     </div>
   );
@@ -266,10 +302,10 @@ function QualityBadgeInner({
 
 export function QualityBadge({ hostIdentity }: { hostIdentity: string }) {
   const participant = useRemoteParticipant(hostIdentity);
-  
+
   if (!participant) {
     return null;
   }
-  
+
   return <QualityBadgeInner participant={participant} />;
 }
