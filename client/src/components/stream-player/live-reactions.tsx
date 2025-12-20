@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useState } from "react";
-import { useDataChannel, ReceivedMessage } from "@livekit/components-react";
+import { useDataChannel, ReceivedMessage, useConnectionState, useRoomContext } from "@livekit/components-react";
+import { ConnectionState } from "livekit-client";
 import { motion, AnimatePresence } from "motion/react";
 import { Heart, ThumbsUp, PartyPopper, Flame, Star } from "lucide-react";
 
@@ -33,6 +34,8 @@ const decoder = new TextDecoder();
 
 export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
   const [flyingReactions, setFlyingReactions] = useState<FlyingReaction[]>([]);
+  const connectionState = useConnectionState();
+  const room = useRoomContext();
 
   const addFlyingReaction = useCallback((emoji: string) => {
     const newReaction: FlyingReaction = {
@@ -67,15 +70,30 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
 
   const { send } = useDataChannel("reactions", onMessage);
 
-  const handleReaction = (emoji: string) => {
-    // Send to other viewers via DataChannel
-    if (send) {
-      const message = JSON.stringify({ type: "reaction", emoji });
-      send(encoder.encode(message), { reliable: true });
+  // Debug: Log data channel status
+  useEffect(() => {
+    if (connectionState === ConnectionState.Connected) {
+      console.log("LiveReactions: Room connected, send function available:", !!send);
     }
+  }, [connectionState, send]);
 
+  const handleReaction = (emoji: string) => {
     // Show locally immediately
     addFlyingReaction(emoji);
+
+    // Send to other viewers via DataChannel if connected
+    if (send && connectionState === ConnectionState.Connected && room) {
+      try {
+        const message = JSON.stringify({ type: "reaction", emoji });
+        const encoded = encoder.encode(message);
+        send(encoded, { reliable: true });
+        console.log("LiveReactions: Sent reaction", emoji);
+      } catch (e) {
+        console.error("Failed to send reaction", e);
+      }
+    } else {
+      console.warn("LiveReactions: Cannot send reaction - send:", !!send, "state:", connectionState, "room:", !!room);
+    }
   };
 
   if (isOverlay) {
@@ -137,6 +155,8 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
 export function ReactionBar() {
   const [showAll, setShowAll] = useState(false);
   const [flyingReactions, setFlyingReactions] = useState<FlyingReaction[]>([]);
+  const connectionState = useConnectionState();
+  const room = useRoomContext();
 
   const addFlyingReaction = useCallback((emoji: string) => {
     const newReaction: FlyingReaction = {
@@ -169,12 +189,30 @@ export function ReactionBar() {
 
   const { send } = useDataChannel("reactions", onMessage);
 
-  const handleReaction = (emoji: string) => {
-    if (send) {
-      const message = JSON.stringify({ type: "reaction", emoji });
-      send(encoder.encode(message), { reliable: true });
+  // Debug: Log data channel status
+  useEffect(() => {
+    if (connectionState === ConnectionState.Connected) {
+      console.log("ReactionBar: Room connected, send function available:", !!send);
     }
+  }, [connectionState, send]);
+
+  const handleReaction = (emoji: string) => {
+    // Show locally immediately
     addFlyingReaction(emoji);
+
+    // Send to other viewers via DataChannel if connected
+    if (send && connectionState === ConnectionState.Connected && room) {
+      try {
+        const message = JSON.stringify({ type: "reaction", emoji });
+        const encoded = encoder.encode(message);
+        send(encoded, { reliable: true });
+        console.log("ReactionBar: Sent reaction", emoji);
+      } catch (e) {
+        console.error("Failed to send reaction", e);
+      }
+    } else {
+      console.warn("ReactionBar: Cannot send reaction - send:", !!send, "state:", connectionState, "room:", !!room);
+    }
   };
 
   const quickReactions = REACTIONS.slice(0, 4);
