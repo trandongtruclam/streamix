@@ -10,8 +10,14 @@ import {
 import { ConnectionState } from "livekit-client";
 
 import { useViewerToken } from "@/hooks/use-viewer-token";
-import { ChatForm, ChatFormSkeleton } from "@/components/stream-player/chat-form";
-import { ChatList, ChatListSkeleton } from "@/components/stream-player/chat-list";
+import {
+  ChatForm,
+  ChatFormSkeleton,
+} from "@/components/stream-player/chat-form";
+import {
+  ChatList,
+  ChatListSkeleton,
+} from "@/components/stream-player/chat-list";
 import { ChatCommunity } from "@/components/stream-player/chat-community";
 import { ChatVariant, useChatSidebar } from "@/store/use-chat-sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -42,11 +48,9 @@ export function DashboardChat({
   const isFollowing = true;
 
   // Find host participant
-  const participant = participants.find(
-    (p) => p.identity === hostIdentity
-  ) || participants.find(
-    (p) => p.identity === `host-${hostIdentity}`
-  );
+  const participant =
+    participants.find((p) => p.identity === hostIdentity) ||
+    participants.find((p) => p.identity === `host-${hostIdentity}`);
 
   const isOnline = participant && connectionState === ConnectionState.Connected;
   const isHidden = !isChatEnabled || !isOnline;

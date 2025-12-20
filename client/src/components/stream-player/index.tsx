@@ -6,7 +6,11 @@ import {
   useRoomContext,
   useConnectionState,
 } from "@livekit/components-react";
-import { RoomEvent, ConnectionState } from "livekit-client";
+import {
+  RoomEvent,
+  ConnectionState,
+  type DisconnectReason,
+} from "livekit-client";
 
 import { useViewerToken } from "@/hooks/use-viewer-token";
 import { useChatSidebar } from "@/store/use-chat-sidebar";
@@ -139,8 +143,8 @@ function StreamPlayerContent({
       });
     };
 
-    const handleDisconnected = (reason?: string) => {
-      console.log("StreamPlayer: Disconnected from room", reason);
+    const handleDisconnected = (reason?: DisconnectReason) => {
+      console.log("StreamPlayer: Disconnected from room", reason?.toString());
     };
 
     room.on(RoomEvent.Connected, handleConnected);
