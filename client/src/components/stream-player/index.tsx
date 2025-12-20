@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
-import { LiveKitRoom } from "@livekit/components-react";
+import React, { useEffect, useMemo, useRef } from "react";
+import { LiveKitRoom, useRoomContext } from "@livekit/components-react";
+import { RoomEvent, ConnectionState } from "livekit-client";
 
 import { useViewerToken } from "@/hooks/use-viewer-token";
 import { useChatSidebar } from "@/store/use-chat-sidebar";
@@ -48,8 +49,33 @@ export function StreamPlayer({
   const { identity, name, token } = useViewerToken(user.id);
   const { collapsed } = useChatSidebar((state) => state);
 
+  // Memoize server URL to prevent unnecessary re-renders
+  const serverUrl = useMemo(
+    () => process.env.NEXT_PUBLIC_LIVEKIT_WS_URL || "",
+    []
+  );
+
+  // Track if component is mounted to prevent unnecessary disconnects
+  const isMountedRef = useRef(true);
+  
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
+
   if (!token || !identity || !name) {
     return <StreamPlayerSkeleton />;
+  }
+
+  if (!serverUrl) {
+    console.error("StreamPlayer: Missing NEXT_PUBLIC_LIVEKIT_WS_URL");
+    return (
+      <div className="h-full flex items-center justify-center">
+        <p className="text-red-500">Missing LiveKit server URL</p>
+      </div>
+    );
   }
 
   return (
@@ -61,73 +87,129 @@ export function StreamPlayer({
       )}
       <LiveKitRoom
         token={token}
-        serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_WS_URL}
+        serverUrl={serverUrl}
+        connect={true}
         className={cn(
           "grid grid-cols-1 lg:gap-y-0 lg:grid-cols-3 2xl:grid-cols-6 h-full",
           collapsed && "lg:grid-cols-1 2xl:grid-cols-1"
         )}
       >
-        <div 
-          className={cn(
-            "col-span-1 lg:col-span-2 2xl:col-span-5 lg:overflow-y-auto hidden-scrollbar",
-            collapsed && "lg:col-span-1 2xl:col-span-1"
-          )}
-        >
-          {/* Video Section - Full width on top */}
-          <Video hostName={user.username} hostIdentity={user.id} />
-          
-          {/* Stream Info Below Video */}
-          <div className="px-4 lg:px-6 py-4 space-y-6 pb-10">
-            <Header
-              imageUrl={user.imageUrl}
-              hostName={user.username}
-              hostIdentity={user.id}
-              isFollowing={isFollowing}
-              name={stream.name}
-              viewerIdentity={identity}
-            />
-            
-            {/* Host Controls - Only visible to streamer */}
-            <HostControls
-              hostIdentity={user.id}
-              viewerIdentity={identity}
-              roomName={user.id}
-            />
-            
-            {/* Divider */}
-            <div className="h-px bg-[#2f2f35]" />
-            
-            <InfoCard
-              hostIdentity={user.id}
-              viewerIdentity={identity}
-              name={stream.name}
-              thumbnailUrl={stream.thumbnailUrl}
-            />
-            
-            <AboutCard
-              hostName={user.username}
-              hostIdentity={user.id}
-              viewerIdentity={identity}
-              bio={user.bio}
-              followedByCount={user._count.followedBy}
-            />
-          </div>
-        </div>
+        <StreamPlayerContent
+          user={user}
+          stream={stream}
+          isFollowing={isFollowing}
+          viewerIdentity={identity}
+          viewerName={name}
+        />
+      </LiveKitRoom>
+    </div>
+  );
+}
+
+// Internal component that uses LiveKit hooks
+function StreamPlayerContent({
+  user,
+  stream,
+  isFollowing,
+  viewerIdentity,
+  viewerName,
+}: {
+  user: CustomUser;
+  stream: CustomStream;
+  isFollowing: boolean;
+  viewerIdentity: string;
+  viewerName: string;
+}) {
+  const { collapsed } = useChatSidebar((state) => state);
+  const room = useRoomContext();
+  const connectionState = useConnectionState();
+
+  // Log connection events
+  useEffect(() => {
+    if (!room) return;
+
+    const handleConnected = () => {
+      console.log("StreamPlayer: Connected to room", {
+        roomName: room.name,
+        identity: room.localParticipant.identity,
+      });
+    };
+
+    const handleDisconnected = (reason?: string) => {
+      console.log("StreamPlayer: Disconnected from room", reason);
+    };
+
+    room.on(RoomEvent.Connected, handleConnected);
+    room.on(RoomEvent.Disconnected, handleDisconnected);
+
+    return () => {
+      room.off(RoomEvent.Connected, handleConnected);
+      room.off(RoomEvent.Disconnected, handleDisconnected);
+    };
+  }, [room]);
+
+  return (
+    <>
+      <div 
+        className={cn(
+          "col-span-1 lg:col-span-2 2xl:col-span-5 lg:overflow-y-auto hidden-scrollbar",
+          collapsed && "lg:col-span-1 2xl:col-span-1"
+        )}
+      >
+        {/* Video Section - Full width on top */}
+        <Video hostName={user.username} hostIdentity={user.id} />
         
-        {/* Chat Section */}
-        <div className={cn("col-span-1 h-full", collapsed && "hidden")}>
-          <Chat
-            viewerName={name}
+        {/* Stream Info Below Video */}
+        <div className="px-4 lg:px-6 py-4 space-y-6 pb-10">
+          <Header
+            imageUrl={user.imageUrl}
             hostName={user.username}
             hostIdentity={user.id}
             isFollowing={isFollowing}
-            isChatEnabled={stream.isChatEnabled}
-            isChatDelayed={stream.isChatDelayed}
-            isChatFollowersOnly={stream.isChatFollowersOnly}
+            name={stream.name}
+            viewerIdentity={viewerIdentity}
+          />
+          
+          {/* Host Controls - Only visible to streamer */}
+          <HostControls
+            hostIdentity={user.id}
+            viewerIdentity={viewerIdentity}
+            roomName={user.id}
+          />
+          
+          {/* Divider */}
+          <div className="h-px bg-[#2f2f35]" />
+          
+          <InfoCard
+            hostIdentity={user.id}
+            viewerIdentity={viewerIdentity}
+            name={stream.name}
+            thumbnailUrl={stream.thumbnailUrl}
+          />
+          
+          <AboutCard
+            hostName={user.username}
+            hostIdentity={user.id}
+            viewerIdentity={viewerIdentity}
+            bio={user.bio}
+            followedByCount={user._count.followedBy}
           />
         </div>
-      </LiveKitRoom>
-    </div>
+      </div>
+      
+      {/* Chat Section */}
+      <div className={cn("col-span-1 h-full", collapsed && "hidden")}>
+        <Chat
+          viewerName={viewerName}
+          hostName={user.username}
+          hostIdentity={user.id}
+          isFollowing={isFollowing}
+          isChatEnabled={stream.isChatEnabled}
+          isChatDelayed={stream.isChatDelayed}
+          isChatFollowersOnly={stream.isChatFollowersOnly}
+        />
+      </div>
+    </>
   );
 }
 

@@ -6,6 +6,7 @@ import {
   useConnectionState,
   useRemoteParticipant,
   useTracks,
+  useParticipants,
 } from "@livekit/components-react";
 
 import { Skeleton } from "@/components/ui/skeleton";
@@ -22,13 +23,50 @@ export function Video({
   hostIdentity: string;
 }) {
   const connectionState = useConnectionState();
-  const participant = useRemoteParticipant(hostIdentity);
-  const tracks = useTracks([
+  const participants = useParticipants();
+  
+  // Call hook unconditionally (Rules of Hooks)
+  const remoteParticipant = useRemoteParticipant(hostIdentity);
+  
+  // Get all tracks first to find the broadcaster
+  const allTracks = useTracks([
     Track.Source.Camera,
     Track.Source.Microphone,
     Track.Source.ScreenShare,
     Track.Source.ScreenShareAudio,
-  ]).filter((track) => track.participant.identity === hostIdentity);
+  ]);
+  
+  // Find the broadcaster participant - this is the one publishing tracks
+  // The broadcaster always has identity = hostIdentity (userId)
+  // When host views their own stream, they join with identity = host-${hostIdentity}
+  // but the broadcaster (publishing tracks) has identity = hostIdentity
+  // First try to find by identity, then by looking for tracks
+  let participant = participants.find(
+    (p) => p.identity === hostIdentity
+  );
+  
+  // If not found by identity, try to find participant that has published tracks
+  if (!participant) {
+    const broadcasterWithTracks = allTracks.find(
+      (track) => track.participant.identity === hostIdentity
+    );
+    if (broadcasterWithTracks) {
+      participant = participants.find(
+        (p) => p.identity === broadcasterWithTracks.participant.identity
+      );
+    }
+  }
+  
+  // Fallback to remoteParticipant from hook
+  if (!participant) {
+    participant = remoteParticipant;
+  }
+  
+  // Get all tracks from the broadcaster (identity = hostIdentity)
+  // Don't include tracks from viewer participants (like host-${hostIdentity})
+  const tracks = allTracks.filter((track) => 
+    track.participant.identity === hostIdentity
+  );
 
   let content;
 

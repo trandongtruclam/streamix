@@ -54,8 +54,8 @@ export const createViewerToken = async (hostIdentity: string) => {
 
 /**
  * Create a token for browser broadcasting
- * This token has publish permissions and uses the user's ID as identity
- * so viewers can find the participant correctly
+ * This token has publish permissions
+ * Uses the same identity format as viewer token for consistency
  */
 export const createBroadcastToken = async () => {
   const self = await getSelf();
@@ -64,7 +64,9 @@ export const createBroadcastToken = async () => {
     process.env.LIVEKIT_API_KEY,
     process.env.LIVEKIT_API_SECRET,
     {
-      identity: self.id, // Use userId directly (without host- prefix) to match what viewers expect
+      // Use userId directly - viewers will see this participant with identity = userId
+      // When host views in dashboard, they'll join with identity = host-${userId} but can still see the stream
+      identity: self.id,
       name: self.username,
     }
   );

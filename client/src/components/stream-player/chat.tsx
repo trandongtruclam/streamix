@@ -6,6 +6,7 @@ import {
   useChat,
   useConnectionState,
   useRemoteParticipant,
+  useParticipants,
 } from "@livekit/components-react";
 import { ConnectionState } from "livekit-client";
 
@@ -36,7 +37,19 @@ export function Chat({
   const matches = useMediaQuery("(max-width: 1024px)");
   const { variant, onExpand } = useChatSidebar((state) => state);
   const connectionState = useConnectionState();
-  const participant = useRemoteParticipant(hostIdentity);
+  const participants = useParticipants();
+  
+  // Call hook unconditionally (Rules of Hooks)
+  const remoteParticipant = useRemoteParticipant(hostIdentity);
+  
+  // Find host participant - could be with identity = hostIdentity (when broadcasting) 
+  // or host-${hostIdentity} (when viewing as host)
+  // Finally fallback to remoteParticipant from hook
+  const participant = participants.find(
+    (p) => p.identity === hostIdentity
+  ) || participants.find(
+    (p) => p.identity === `host-${hostIdentity}`
+  ) || remoteParticipant;
 
   const isOnline = participant && connectionState === ConnectionState.Connected;
 

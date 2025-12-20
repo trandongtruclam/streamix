@@ -32,6 +32,9 @@ export const setStreamLiveStatus = async (isLive: boolean) => {
 
     // Revalidate all relevant paths
     revalidatePath(`/u/${self.username}`);
+    revalidatePath(`/u/${self.username}/(home)`); // Dashboard home
+    revalidatePath(`/u/${self.username}/chat`); // Dashboard chat
+    revalidatePath(`/u/${self.username}/stream`); // Dashboard stream
     revalidatePath(`/${self.username}`);
     revalidatePath("/");
 
@@ -73,6 +76,7 @@ export const updateStream = async (values: StreamUpdateData) => {
     });
 
     revalidatePath(`/u/${self.username}/chat`);
+    revalidatePath(`/u/${self.username}/stream`);
     revalidatePath(`/u/${self.username}`);
     revalidatePath(`/${self.username}`);
 
