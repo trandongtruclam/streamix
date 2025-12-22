@@ -1,5 +1,8 @@
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { ZodError } from "zod";
+
+import { addCorsHeaders } from "@/lib/cors";
 
 /**
  * Standard API error response
@@ -38,11 +41,14 @@ export function formatZodError(error: ZodError) {
  */
 export function createErrorResponse(
   error: unknown,
-  defaultMessage = "Internal server error"
+  defaultMessage = "Internal server error",
+  request?: NextRequest
 ): NextResponse {
+  let response: NextResponse;
+
   // Handle Zod validation errors
   if (error instanceof ZodError) {
-    return NextResponse.json(
+    response = NextResponse.json(
       {
         success: false,
         message: "Validation failed",
@@ -51,10 +57,9 @@ export function createErrorResponse(
       { status: 400 }
     );
   }
-
   // Handle custom ApiError
-  if (error instanceof ApiError) {
-    const response: {
+  else if (error instanceof ApiError) {
+    const responseBody: {
       success: false;
       message: string;
       code?: string;
@@ -65,23 +70,22 @@ export function createErrorResponse(
     };
 
     if (error.code) {
-      response.code = error.code;
+      responseBody.code = error.code;
     }
 
     if (error.details) {
-      response.details = error.details;
+      responseBody.details = error.details;
     }
 
-    return NextResponse.json(response, { status: error.statusCode });
+    response = NextResponse.json(responseBody, { status: error.statusCode });
   }
-
   // Handle standard Error
-  if (error instanceof Error) {
+  else if (error instanceof Error) {
     // Don't expose internal error messages in production
     const message =
       process.env.NODE_ENV === "production" ? defaultMessage : error.message;
 
-    return NextResponse.json(
+    response = NextResponse.json(
       {
         success: false,
         message,
@@ -89,15 +93,23 @@ export function createErrorResponse(
       { status: 500 }
     );
   }
-
   // Handle unknown errors
-  return NextResponse.json(
-    {
-      success: false,
-      message: defaultMessage,
-    },
-    { status: 500 }
-  );
+  else {
+    response = NextResponse.json(
+      {
+        success: false,
+        message: defaultMessage,
+      },
+      { status: 500 }
+    );
+  }
+
+  // Add CORS headers if request is provided
+  if (request) {
+    return addCorsHeaders(response, request);
+  }
+
+  return response;
 }
 
 /**
@@ -106,9 +118,10 @@ export function createErrorResponse(
 export function createSuccessResponse<T>(
   data: T,
   message?: string,
-  status: number = 200
+  status: number = 200,
+  request?: NextRequest
 ): NextResponse {
-  return NextResponse.json(
+  const response = NextResponse.json(
     {
       success: true,
       ...(message && { message }),
@@ -116,4 +129,11 @@ export function createSuccessResponse<T>(
     },
     { status }
   );
+
+  // Add CORS headers if request is provided
+  if (request) {
+    return addCorsHeaders(response, request);
+  }
+
+  return response;
 }

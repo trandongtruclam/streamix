@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+import { handleCorsPreflight, addCorsHeaders } from "@/lib/cors";
+
 const publicRoutes = [
   "/",
   "/sign-in",
@@ -11,6 +13,7 @@ const publicRoutes = [
   "/api/auth/me",
   "/api/webhooks",
   "/api/uploadthing",
+  "/api/health",
   "/search",
 ];
 
@@ -34,7 +37,7 @@ const isPublicRoute = (pathname: string) => {
 };
 
 export function middleware(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  const { pathname, method } = request.nextUrl;
 
   // Skip static files and Next.js internals
   if (
@@ -45,6 +48,15 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
+  // Handle CORS preflight requests for API routes
+  if (pathname.startsWith("/api") && method === "OPTIONS") {
+    const corsResponse = handleCorsPreflight(request);
+    if (corsResponse) {
+      return corsResponse;
+    }
+  }
+
+  // Handle authentication and route protection
   const sessionToken = request.cookies.get("streamix_session")?.value;
 
   // If trying to access auth pages while logged in, redirect to home
@@ -59,7 +71,14 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(signInUrl);
   }
 
-  return NextResponse.next();
+  // Add CORS headers to API responses
+  const response = NextResponse.next();
+  
+  if (pathname.startsWith("/api")) {
+    return addCorsHeaders(response, request);
+  }
+
+  return response;
 }
 
 export const config = {
