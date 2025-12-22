@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+import {registerSchema} from "@/lib/validations/auth";
 import prisma from "@/lib/prisma";
 import {
   hashPassword,
@@ -10,44 +11,23 @@ import {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, email, password } = body;
+    const { username, email, password } = registerSchema.parse(body);
 
-    if (!username || !email || !password) {
-      return NextResponse.json(
-        { message: "Username, email, and password are required" },
-        { status: 400 }
-      );
-    }
+
 
     // Validate username
     if (username.length < 3 || username.length > 20) {
-      return NextResponse.json(
-        { message: "Username must be between 3 and 20 characters" },
-        { status: 400 }
-      );
-    }
-
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
-      return NextResponse.json(
-        { message: "Username can only contain letters, numbers, and underscores" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
     }
 
     // Validate email
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json(
-        { message: "Invalid email format" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
     }
 
     // Validate password
     if (password.length < 6) {
-      return NextResponse.json(
-        { message: "Password must be at least 6 characters" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
     }
 
     // Check if user already exists
@@ -59,15 +39,9 @@ export async function POST(request: NextRequest) {
 
     if (existingUser) {
       if (existingUser.email === email) {
-        return NextResponse.json(
-          { message: "Email already in use" },
-          { status: 400 }
-        );
+        return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
       }
-      return NextResponse.json(
-        { message: "Username already taken" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
     }
 
     const passwordHash = await hashPassword(password);
@@ -101,11 +75,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("Registration error:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
-
-
