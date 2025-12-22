@@ -113,13 +113,12 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
               initial={{
                 opacity: 1,
                 y: "100vh",
-                x: `${reaction.x}%`,
-                scale: 0.5,
+                scale: 0.8,
               }}
               animate={{
                 opacity: [1, 1, 0],
                 y: "-20vh",
-                scale: [0.5, 1.2, 1],
+                scale: [0.8, 1.3, 1.1],
                 rotate: [0, -10, 10, -5, 5, 0],
               }}
               exit={{ opacity: 0 }}
@@ -127,8 +126,12 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
                 duration: TIME.REACTION_ANIMATION_DURATION / 1000,
                 ease: "easeOut",
               }}
-              className="absolute text-4xl drop-shadow-lg"
-              style={{ left: `${reaction.x}%` }}
+              className="absolute text-7xl drop-shadow-2xl will-change-transform"
+              style={{ 
+                left: `${reaction.x}%`,
+                transform: "translateZ(0)",
+                backfaceVisibility: "hidden",
+              }}
             >
               {reaction.emoji}
             </motion.div>
@@ -140,17 +143,21 @@ export function LiveReactions({ isOverlay = false }: LiveReactionsProps) {
 
   // Reaction buttons panel
   return (
-    <div className="flex items-center gap-1 p-2 bg-black/60 backdrop-blur-sm rounded-full">
+    <div className="flex items-center gap-2 p-3 bg-black/60 backdrop-blur-sm rounded-full">
       {REACTIONS.map((reaction) => (
         <motion.button
           key={reaction.id}
           onClick={() => handleReaction(reaction.emoji)}
-          whileHover={{ scale: 1.2 }}
-          whileTap={{ scale: 0.9 }}
-          className="p-2 rounded-full hover:bg-white/20 transition-colors"
+          whileHover={{ scale: 1.15 }}
+          whileTap={{ scale: 1 }}
+          className="p-2.5 rounded-full hover:bg-white/20 transition-colors will-change-transform"
           title={reaction.emoji}
+          style={{
+            transform: "translateZ(0)",
+            backfaceVisibility: "hidden",
+          }}
         >
-          <span className="text-xl">{reaction.emoji}</span>
+          <span className="text-4xl block leading-none">{reaction.emoji}</span>
         </motion.button>
       ))}
     </div>
@@ -248,20 +255,24 @@ export function ReactionBar() {
               initial={{
                 opacity: 1,
                 y: 0,
-                scale: 0.5,
+                scale: 0.8,
               }}
               animate={{
                 opacity: [1, 1, 0],
                 y: -300,
-                scale: [0.5, 1.5, 1],
+                scale: [0.8, 1.4, 1.1],
               }}
               exit={{ opacity: 0 }}
               transition={{
                 duration: TIME.REACTION_BAR_ANIMATION_DURATION / 1000,
                 ease: "easeOut",
               }}
-              className="absolute text-3xl"
-              style={{ left: `${reaction.x}%` }}
+              className="absolute text-6xl drop-shadow-2xl will-change-transform"
+              style={{ 
+                left: `${reaction.x}%`,
+                transform: "translateZ(0)",
+                backfaceVisibility: "hidden",
+              }}
             >
               {reaction.emoji}
             </motion.div>
@@ -270,37 +281,45 @@ export function ReactionBar() {
       </div>
 
       {/* Reaction buttons */}
-      <div className="flex items-center gap-1">
+      <div className="flex items-center gap-2">
         {quickReactions.map((reaction) => (
           <motion.button
             key={reaction.id}
             onClick={() => handleReaction(reaction.emoji)}
-            whileHover={{ scale: 1.15 }}
-            whileTap={{ scale: 0.85 }}
-            className="p-1.5 rounded-full hover:bg-[#3a3a3d] transition-colors"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 1 }}
+            className="p-2 rounded-full hover:bg-[#3a3a3d] transition-colors will-change-transform"
+            style={{
+              transform: "translateZ(0)",
+              backfaceVisibility: "hidden",
+            }}
           >
-            <span className="text-lg">{reaction.emoji}</span>
+            <span className="text-3xl block leading-none">{reaction.emoji}</span>
           </motion.button>
         ))}
 
         <div className="relative">
           <motion.button
             onClick={() => setShowAll(!showAll)}
-            whileHover={{ scale: 1.1 }}
-            whileTap={{ scale: 0.9 }}
-            className="p-1.5 rounded-full hover:bg-[#3a3a3d] transition-colors text-[#adadb8]"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 1 }}
+            className="p-2 rounded-full hover:bg-[#3a3a3d] transition-colors text-[#adadb8] will-change-transform"
+            style={{
+              transform: "translateZ(0)",
+              backfaceVisibility: "hidden",
+            }}
           >
-            <span className="text-sm">+{moreReactions.length}</span>
+            <span className="text-base font-medium">+{moreReactions.length}</span>
           </motion.button>
 
           {/* More reactions popup */}
           <AnimatePresence>
             {showAll && (
               <motion.div
-                initial={{ opacity: 0, y: 10, scale: 0.9 }}
+                initial={{ opacity: 0, y: 10, scale: 0.95 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: 10, scale: 0.9 }}
-                className="absolute bottom-full right-0 mb-2 p-2 bg-[#1f1f23] border border-[#3a3a3d] rounded-lg shadow-xl flex gap-1"
+                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                className="absolute bottom-full right-0 mb-2 p-2 bg-[#1f1f23] border border-[#3a3a3d] rounded-lg shadow-xl flex gap-2"
               >
                 {moreReactions.map((reaction) => (
                   <motion.button
@@ -309,11 +328,15 @@ export function ReactionBar() {
                       handleReaction(reaction.emoji);
                       setShowAll(false);
                     }}
-                    whileHover={{ scale: 1.2 }}
-                    whileTap={{ scale: 0.9 }}
-                    className="p-1.5 rounded-full hover:bg-[#3a3a3d] transition-colors"
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 1 }}
+                    className="p-2 rounded-full hover:bg-[#3a3a3d] transition-colors will-change-transform"
+                    style={{
+                      transform: "translateZ(0)",
+                      backfaceVisibility: "hidden",
+                    }}
                   >
-                    <span className="text-lg">{reaction.emoji}</span>
+                    <span className="text-3xl block leading-none">{reaction.emoji}</span>
                   </motion.button>
                 ))}
               </motion.div>
