@@ -126,7 +126,7 @@ export function InfoModal({
                     closeRef?.current?.click();
                   }}
                 /> */}
-                <p>should upload image here!!</p>
+                <Button variant="ghost">Image uploading for thumbnail!!</Button>
               </div>
             )}
           </div>

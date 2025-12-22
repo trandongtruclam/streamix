@@ -78,7 +78,7 @@ Before you begin, ensure you have the following installed:
 1. **Clone the repository**
 
    ```bash
-   git clone <repository-url>
+   git clone https://github.com/trandongtruclam/streamix/
    cd client
    ```
 
@@ -329,8 +329,6 @@ npm start
 | `LIVEKIT_API_KEY`     | LiveKit API key                | Yes      |
 | `LIVEKIT_API_SECRET`  | LiveKit API secret             | Yes      |
 | `NEXT_PUBLIC_APP_URL` | Public URL of your application | Yes      |
-| `UPLOADTHING_SECRET`  | UploadThing secret (optional)  | No       |
-| `UPLOADTHING_APP_ID`  | UploadThing app ID (optional)  | No       |
 
 ## 📚 Key Technologies & Libraries
 
