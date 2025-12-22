@@ -1,3 +1,4 @@
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Toaster } from "sonner";
@@ -35,6 +36,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
+            <SpeedInsights />
             <Toaster theme="dark" position="bottom-center" />
           </AuthProvider>
         </ThemeProvider>
