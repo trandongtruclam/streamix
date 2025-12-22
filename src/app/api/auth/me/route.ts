@@ -1,26 +1,23 @@
 import { NextResponse } from "next/server";
 
 import { getSession } from "@/lib/auth";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
+import { ApiError } from "@/lib/api-response";
 
 export async function GET() {
   try {
     const user = await getSession();
 
     if (!user) {
-      return NextResponse.json(
-        { message: "Not authenticated" },
-        { status: 401 }
+      throw new ApiError(
+        401,
+        "Not authenticated",
+        "UNAUTHORIZED"
       );
     }
 
-    return NextResponse.json({ user });
+    return createSuccessResponse({ user });
   } catch (error) {
-    console.error("Auth check error:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
-    );
+    return createErrorResponse(error, "Failed to get user session");
   }
 }
-
-

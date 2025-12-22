@@ -1,45 +1,71 @@
-import { NextRequest, NextResponse } from "next/server";
-import {loginSchema} from "@/lib/validations/auth";
+import { NextRequest } from "next/server";
+
+import { loginSchema } from "@/lib/validations/auth";
 import prisma from "@/lib/prisma";
-import {
-  verifyPassword,
-  createSession,
-  setSessionCookie,
-} from "@/lib/auth";
+import { verifyPassword, createSession, setSessionCookie } from "@/lib/auth";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
+import { ApiError } from "@/lib/api-response";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { email, password } = loginSchema.parse(body);
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-    });
+    // Validate input with Zod schema
+    const validationResult = loginSchema.safeParse(body);
 
-    if (!user) {
-      return NextResponse.json({ error: loginSchema.safeParse(body).error }, { status: 401 });
+    if (!validationResult.success) {
+      return createErrorResponse(validationResult.error);
     }
 
+    const { email, password } = validationResult.data;
+
+    // Find user by email
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        passwordHash: true,
+        imageUrl: true,
+        bio: true,
+      },
+    });
+
+    // Don't reveal if user exists or not (security best practice)
+    if (!user) {
+      throw new ApiError(
+        401,
+        "Invalid email or password",
+        "INVALID_CREDENTIALS"
+      );
+    }
+
+    // Verify password
     const isValid = await verifyPassword(password, user.passwordHash);
 
     if (!isValid) {
-      return NextResponse.json({ error: loginSchema.safeParse(body).error }, { status: 401 });
+      throw new ApiError(
+        401,
+        "Invalid email or password",
+        "INVALID_CREDENTIALS"
+      );
     }
 
+    // Create session
     const token = await createSession(user.id);
     await setSessionCookie(token);
 
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        imageUrl: user.imageUrl,
-        bio: user.bio,
+    // Return user data (exclude password hash)
+    const { passwordHash: _, ...userWithoutPassword } = user;
+
+    return createSuccessResponse(
+      {
+        user: userWithoutPassword,
       },
-    });
+      "Login successful"
+    );
   } catch (error) {
-    console.error("Login error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return createErrorResponse(error, "Failed to login");
   }
 }

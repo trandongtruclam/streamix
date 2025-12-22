@@ -1,49 +1,43 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 
-import {registerSchema} from "@/lib/validations/auth";
+import { registerSchema } from "@/lib/validations/auth";
 import prisma from "@/lib/prisma";
-import {
-  hashPassword,
-  createSession,
-  setSessionCookie,
-} from "@/lib/auth";
+import { hashPassword, createSession, setSessionCookie } from "@/lib/auth";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
+import { ApiError } from "@/lib/api-response";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { username, email, password } = registerSchema.parse(body);
 
+    // Validate input with Zod schema
+    const validationResult = registerSchema.safeParse(body);
 
-
-    // Validate username
-    if (username.length < 3 || username.length > 20) {
-      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
+    if (!validationResult.success) {
+      return createErrorResponse(validationResult.error);
     }
 
-    // Validate email
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
-    }
-
-    // Validate password
-    if (password.length < 6) {
-      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
-    }
+    const { username, email, password } = validationResult.data;
 
     // Check if user already exists
     const existingUser = await prisma.user.findFirst({
       where: {
         OR: [{ email }, { username }],
       },
+      select: {
+        email: true,
+        username: true,
+      },
     });
 
     if (existingUser) {
       if (existingUser.email === email) {
-        return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
+        throw new ApiError(409, "Email already in use", "EMAIL_EXISTS");
       }
-      return NextResponse.json({ error: registerSchema.safeParse(body).error }, { status: 400 });
+      throw new ApiError(409, "Username already taken", "USERNAME_EXISTS");
     }
 
+    // Hash password
     const passwordHash = await hashPassword(password);
 
     // Create user and stream in a transaction
@@ -52,29 +46,42 @@ export async function POST(request: NextRequest) {
         username,
         email,
         passwordHash,
-        imageUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${username}`,
+        imageUrl: `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(
+          username
+        )}`,
         stream: {
           create: {
             name: `${username}'s stream`,
           },
         },
       },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        imageUrl: true,
+        bio: true,
+      },
     });
 
+    // Create session
     const token = await createSession(user.id);
     await setSessionCookie(token);
 
-    return NextResponse.json({
-      user: {
-        id: user.id,
-        username: user.username,
-        email: user.email,
-        imageUrl: user.imageUrl,
-        bio: user.bio,
+    return createSuccessResponse(
+      {
+        user: {
+          id: user.id,
+          username: user.username,
+          email: user.email,
+          imageUrl: user.imageUrl,
+          bio: user.bio,
+        },
       },
-    });
+      "User registered successfully",
+      201
+    );
   } catch (error) {
-    console.error("Registration error:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return createErrorResponse(error, "Failed to register user");
   }
 }

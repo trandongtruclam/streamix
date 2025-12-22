@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 
 import { deleteSession, clearSessionCookie } from "@/lib/auth";
 import { SESSION_COOKIE_NAME } from "@/lib/constants";
+import { createErrorResponse, createSuccessResponse } from "@/lib/api-response";
 
 export async function POST() {
   try {
@@ -15,12 +16,11 @@ export async function POST() {
 
     await clearSessionCookie();
 
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Logout error:", error);
-    return NextResponse.json(
-      { message: "Internal server error" },
-      { status: 500 }
+    return createSuccessResponse(
+      null,
+      "Logged out successfully"
     );
+  } catch (error) {
+    return createErrorResponse(error, "Failed to logout");
   }
 }
