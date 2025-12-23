@@ -37,7 +37,7 @@ export default function RootLayout({
           <AuthProvider>
             {children}
             <SpeedInsights />
-            <Toaster theme="dark" position="bottom-center" />
+            <Toaster theme="dark" position="top-center" />
           </AuthProvider>
         </ThemeProvider>
       </body>

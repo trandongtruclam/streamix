@@ -391,13 +391,17 @@ export function BrowserBroadcast({ token, serverUrl }: BrowserBroadcastProps) {
       });
       console.log("Published audio track");
 
-      // Listen for participant events to detect when viewers join
+      // Listen for participant events to detect when viewers join/leave
       room.on(RoomEvent.ParticipantConnected, (participant) => {
-        console.log("Participant connected:", participant.identity);
+        const name = participant.name || participant.identity || "A viewer";
+        console.log("Participant connected:", name);
+        toast.success(`${name} joined your stream`);
       });
 
       room.on(RoomEvent.ParticipantDisconnected, (participant) => {
-        console.log("Participant disconnected:", participant.identity);
+        const name = participant.name || participant.identity || "A viewer";
+        console.log("Participant disconnected:", name);
+        toast(`${name} left your stream`);
       });
 
       // Update stream status to live in database
