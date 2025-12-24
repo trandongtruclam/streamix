@@ -31,6 +31,7 @@ A modern, full-featured live streaming platform built with Next.js, React, and L
 
 ![Streamix Technology Stack Architecture](public/techstack.png)
 
+
 ## Prerequisites
 
 Before you begin, ensure you have the following installed:
