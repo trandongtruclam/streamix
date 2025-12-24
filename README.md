@@ -2,7 +2,7 @@
 
 A modern, full-featured live streaming platform built with Next.js, React, and LiveKit. Streamix enables users to broadcast live video content, interact with viewers through chat, manage their streams, and grow their community.
 
-## 🚀 Features
+## Features
 
 ### Core Functionality
 
@@ -27,12 +27,11 @@ A modern, full-featured live streaming platform built with Next.js, React, and L
 - **Restreaming**: Simultaneously stream to multiple platforms (YouTube, Twitch, Facebook Live)
 - **OBS/RTMP Support**: Use professional streaming software with RTMP or WHIP protocols
 
-
 ## Tech Stack
 
+![Streamix Technology Stack Architecture](public/techstack.png)
 
-
-## 📋 Prerequisites
+## Prerequisites
 
 Before you begin, ensure you have the following installed:
 
