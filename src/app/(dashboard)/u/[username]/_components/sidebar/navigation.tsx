@@ -2,12 +2,12 @@
 
 import React from "react";
 import { usePathname } from "next/navigation";
-import { 
-  Fullscreen, 
-  KeyRound, 
-  MessagesSquare, 
-  Users, 
-  Radio, 
+import {
+  Fullscreen,
+  KeyRound,
+  MessagesSquare,
+  Users,
+  Radio,
   BarChart3,
   Video,
   Share2,
@@ -61,6 +61,11 @@ export function Navigation() {
       label: "Community",
       href: `/u/${user.username}/community`,
       icon: Users,
+    },
+    {
+      label: "Videos",
+      href: `/${user.username}/videos`,
+      icon: Video,
     },
   ];
 

@@ -6,6 +6,9 @@ import Image from "next/image";
 import { getUserByUsername } from "@/lib/user-service";
 import { getRecordingsByUsername } from "@/lib/recording-service";
 import { Skeleton } from "@/components/ui/skeleton";
+import { SyncRecordingsButton } from "./_components/sync-button";
+import { getCurrentUser } from "@/lib/auth-service";
+import { Button } from "@/components/ui/button";
 
 export default async function VideosPage({
   params,
@@ -25,6 +28,8 @@ export default async function VideosPage({
 
   // Fetch recordings from database - include incomplete ones that have fileUrl
   const allRecordings = await getRecordingsByUsername(username, true);
+  const currentUser = await getCurrentUser();
+  const isOwner = currentUser?.username === username;
 
   // Filter: show completed OR incomplete but have fileUrl
   const visibleRecordings = allRecordings.filter(
@@ -52,16 +57,19 @@ export default async function VideosPage({
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="flex items-center gap-3 mb-6">
-        <div className="p-2 bg-[#9147ff]/20 rounded-lg">
-          <Video className="h-6 w-6 text-[#9147ff]" />
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-[#9147ff]/20 rounded-lg">
+            <Video className="h-6 w-6 text-[#9147ff]" />
+          </div>
+          <div>
+            <h1 className="text-2xl font-bold text-white">
+              {user.username}&apos;s Videos
+            </h1>
+            <p className="text-[#adadb8] text-sm">{videos.length} videos</p>
+          </div>
         </div>
-        <div>
-          <h1 className="text-2xl font-bold text-white">
-            {user.username}&apos;s Videos
-          </h1>
-          <p className="text-[#adadb8] text-sm">{videos.length} videos</p>
-        </div>
+        {isOwner && <SyncRecordingsButton />}
       </div>
 
       {/* Videos Grid */}

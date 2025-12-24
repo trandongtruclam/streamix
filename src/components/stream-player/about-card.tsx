@@ -1,9 +1,11 @@
 "use client";
 
 import React from "react";
-import { Users } from "lucide-react";
+import Link from "next/link";
+import { Users, Video } from "lucide-react";
 
 import { VerifiedMark } from "@/components/verified-mark";
+import { Button } from "@/components/ui/button";
 
 import { BioModal } from "./bio-modal";
 
@@ -37,7 +39,7 @@ export function AboutCard({
       </div>
       
       {/* Stats row */}
-      <div className="flex items-center gap-x-4">
+      <div className="flex items-center gap-x-4 flex-wrap">
         <div className="flex items-center gap-x-2 bg-[#26262c] rounded-lg px-3 py-2">
           <Users className="h-4 w-4 text-[#9147ff]" />
           <div className="text-sm">
@@ -47,6 +49,18 @@ export function AboutCard({
             <span className="text-[#adadb8]">{followedByLabel}</span>
           </div>
         </div>
+        
+        {/* Videos Button - Always visible */}
+        <Button
+          asChild
+          variant="outline"
+          className="gap-x-2 bg-[#26262c] border-[#35353b] hover:bg-[#9147ff]/10 hover:border-[#9147ff] text-white"
+        >
+          <Link href={`/${hostName}/videos`}>
+            <Video className="h-4 w-4 text-[#9147ff]" />
+            <span className="font-medium">Watch Videos</span>
+          </Link>
+        </Button>
       </div>
       
       {/* Bio section */}

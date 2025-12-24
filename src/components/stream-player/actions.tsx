@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useTransition } from "react";
-import { Heart, Bell, Share2 } from "lucide-react";
+import { Heart, Bell, Share2, Video } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { toast } from "sonner";
 
 import { useAuth } from "@/components/auth-provider";
@@ -16,10 +17,12 @@ export function Actions({
   hostIdentity,
   isFollowing,
   isHost,
+  hostName,
 }: {
   hostIdentity: string;
   isFollowing: boolean;
   isHost: boolean;
+  hostName?: string;
 }) {
   const { user } = useAuth();
   const router = useRouter();
@@ -109,6 +112,20 @@ export function Actions({
           <Share2 className="h-4 w-4" />
         </Button>
       </Hint>
+      
+      {hostName && (
+        <Button
+          size="sm"
+          variant="ghost"
+          asChild
+          className="gap-x-2 text-[#adadb8] hover:text-white hover:bg-[#3d3d40] border border-[#3d3d40] hover:border-[#9147ff]"
+        >
+          <Link href={`/${hostName}/videos`}>
+            <Video className="h-4 w-4" />
+            <span className="font-medium">Videos</span>
+          </Link>
+        </Button>
+      )}
     </div>
   );
 }

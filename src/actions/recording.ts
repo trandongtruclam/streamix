@@ -383,6 +383,119 @@ export async function stopRestream(egressId: string) {
   }
 }
 
+// Sync all recordings for current user from LiveKit
+export async function syncAllRecordings() {
+  try {
+    const self = await getSelf();
+    const egressClient = getEgressClient();
+
+    // Get all egress instances for user's room
+    const egressList = await egressClient.listEgress({
+      roomName: self.id,
+    });
+
+    const storageUrl = process.env.STORAGE_URL || "";
+    let syncedCount = 0;
+    let createdCount = 0;
+
+    for (const egress of egressList) {
+      // Check if recording exists in database
+      let recording = await prisma.recording.findUnique({
+        where: { egressId: egress.egressId },
+      });
+
+      const status = `EGRESS_${egress.status}`;
+
+      // Build file URL
+      let fileUrl: string | null = null;
+      if (recording?.filepath && storageUrl) {
+        fileUrl = `${storageUrl}/${recording.filepath}`;
+      }
+
+      // Calculate timestamps
+      let startedAt = new Date();
+      if (egress.startedAt) {
+        const timestamp = Number(egress.startedAt);
+        if (timestamp > 1e12) {
+          startedAt = new Date(timestamp / 1_000_000);
+        } else {
+          startedAt = new Date(timestamp);
+        }
+        if (isNaN(startedAt.getTime())) {
+          startedAt = new Date();
+        }
+      }
+
+      let endedAt: Date | null = null;
+      if (egress.endedAt) {
+        const timestamp = Number(egress.endedAt);
+        if (timestamp > 1e12) {
+          endedAt = new Date(timestamp / 1_000_000);
+        } else {
+          endedAt = new Date(timestamp);
+        }
+        if (isNaN(endedAt.getTime())) {
+          endedAt = null;
+        }
+      }
+
+      let duration: number | null = null;
+      if (startedAt && endedAt) {
+        duration = Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000);
+      }
+
+      if (recording) {
+        // Update existing recording
+        await prisma.recording.update({
+          where: { egressId: egress.egressId },
+          data: {
+            status,
+            fileUrl: fileUrl || recording.fileUrl,
+            endedAt,
+            duration,
+          },
+        });
+        syncedCount++;
+      } else {
+        // Create new recording if it doesn't exist
+        const stream = await prisma.stream.findFirst({
+          where: { userId: self.id },
+        });
+
+        await prisma.recording.create({
+          data: {
+            egressId: egress.egressId,
+            userId: self.id,
+            filepath: `recordings/${self.id}/${egress.egressId}.mp4`, // Default path
+            fileUrl,
+            status,
+            startedAt,
+            endedAt,
+            duration,
+            title:
+              stream?.name ||
+              `Stream Recording - ${new Date().toLocaleDateString()}`,
+          },
+        });
+        createdCount++;
+      }
+    }
+
+    revalidatePath(`/${self.username}/videos`);
+    revalidatePath(`/u/${self.username}`);
+
+    return {
+      success: true,
+      synced: syncedCount,
+      created: createdCount,
+      total: egressList.length,
+    };
+  } catch (error) {
+    console.error("Failed to sync all recordings:", error);
+    throw new Error("Failed to sync recordings");
+  }
+}
+
 // Get recording/egress status
 export async function getEgressStatus(egressId: string) {
   try {

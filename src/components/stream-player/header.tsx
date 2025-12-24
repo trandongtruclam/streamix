@@ -90,6 +90,7 @@ export function Header({
         hostIdentity={hostIdentity}
         isFollowing={isFollowing}
         isHost={isHost}
+        hostName={hostName}
       />
     </div>
   );
