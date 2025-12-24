@@ -54,7 +54,7 @@ export async function startRecording(roomName: string) {
 
     if (!s3Bucket || !s3AccessKey || !s3SecretKey) {
       throw new Error(
-        "Recording storage not configured. Please configure S3 storage in environment variables."
+        "Recording storage not configured. Please configure S3 storage/ Cloudflare R2 in environment variables."
       );
     }
 
@@ -90,7 +90,30 @@ export async function startRecording(roomName: string) {
       { layout: "speaker-dark" }
     );
 
+    // Save recording to database
+    const storageUrl = process.env.STORAGE_URL || "";
+    const fileUrl = storageUrl ? `${storageUrl}/${fileOutput.filepath}` : null;
+
+    const startedAt = egress.startedAt
+      ? new Date(Number(egress.startedAt) / 1000)
+      : new Date();
+
+    await prisma.recording.create({
+      data: {
+        egressId: egress.egressId,
+        userId: self.id,
+        filepath: fileOutput.filepath,
+        fileUrl: fileUrl,
+        status: `EGRESS_${egress.status}`,
+        startedAt,
+        title:
+          stream.name ||
+          `Stream Recording - ${new Date().toLocaleDateString()}`,
+      },
+    });
+
     revalidatePath(`/u/${self.username}`);
+    revalidatePath(`/${self.username}/videos`);
 
     return {
       success: true,

@@ -388,7 +388,8 @@ export const ModelName = {
   Stream: 'Stream',
   Follow: 'Follow',
   Block: 'Block',
-  Session: 'Session'
+  Session: 'Session',
+  Recording: 'Recording'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -404,7 +405,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "stream" | "follow" | "block" | "session"
+    modelProps: "user" | "stream" | "follow" | "block" | "session" | "recording"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -778,6 +779,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    Recording: {
+      payload: Prisma.$RecordingPayload<ExtArgs>
+      fields: Prisma.RecordingFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.RecordingFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.RecordingFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>
+        }
+        findFirst: {
+          args: Prisma.RecordingFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.RecordingFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>
+        }
+        findMany: {
+          args: Prisma.RecordingFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>[]
+        }
+        create: {
+          args: Prisma.RecordingCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>
+        }
+        createMany: {
+          args: Prisma.RecordingCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.RecordingCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>[]
+        }
+        delete: {
+          args: Prisma.RecordingDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>
+        }
+        update: {
+          args: Prisma.RecordingUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>
+        }
+        deleteMany: {
+          args: Prisma.RecordingDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.RecordingUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.RecordingUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>[]
+        }
+        upsert: {
+          args: Prisma.RecordingUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$RecordingPayload>
+        }
+        aggregate: {
+          args: Prisma.RecordingAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateRecording>
+        }
+        groupBy: {
+          args: Prisma.RecordingGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecordingGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.RecordingCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.RecordingCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -883,6 +958,25 @@ export const SessionScalarFieldEnum = {
 export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
 
 
+export const RecordingScalarFieldEnum = {
+  id: 'id',
+  egressId: 'egressId',
+  userId: 'userId',
+  title: 'title',
+  fileUrl: 'fileUrl',
+  filepath: 'filepath',
+  duration: 'duration',
+  size: 'size',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecordingScalarFieldEnum = (typeof RecordingScalarFieldEnum)[keyof typeof RecordingScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -959,6 +1053,20 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Float'
+ */
+export type FloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float'>
+    
+
+
+/**
+ * Reference to a field of type 'Float[]'
+ */
+export type ListFloatFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Float[]'>
     
 
 /**
@@ -1061,6 +1169,7 @@ export type GlobalOmitConfig = {
   follow?: Prisma.FollowOmit
   block?: Prisma.BlockOmit
   session?: Prisma.SessionOmit
+  recording?: Prisma.RecordingOmit
 }
 
 /* Types for Logging */

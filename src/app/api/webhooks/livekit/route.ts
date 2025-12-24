@@ -192,5 +192,75 @@ export async function POST(req: Request) {
     }
   }
 
+  // Handle egress complete - when recording finishes
+  if (event.event === "egress_ended") {
+    const egressId = event.egressInfo?.egressId;
+    const status = event.egressInfo?.status;
+    const file = event.egressInfo?.file;
+    const stream = event.egressInfo?.stream;
+
+    if (egressId && status) {
+      try {
+        const recording = await prisma.recording.findUnique({
+          where: { egressId },
+          include: {
+            user: {
+              select: {
+                username: true,
+              },
+            },
+          },
+        });
+
+        if (recording) {
+          // Build file URL from storage
+          const storageUrl = process.env.STORAGE_URL || "";
+          let fileUrl = recording.fileUrl;
+
+          // If file info is available, use it
+          if (file && file.filename) {
+            fileUrl = storageUrl 
+              ? `${storageUrl}/${file.filename}`
+              : file.filename;
+          } else if (stream && stream.url) {
+            // For HLS streams
+            fileUrl = stream.url;
+          }
+
+          // Calculate duration if available
+          const startedAt = recording.startedAt 
+            ? new Date(recording.startedAt)
+            : null;
+          const endedAt = event.egressInfo?.endedAt
+            ? new Date(Number(event.egressInfo.endedAt) / 1000)
+            : new Date();
+          const duration = startedAt && endedAt
+            ? Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000)
+            : null;
+
+          // Update recording with final info
+          await prisma.recording.update({
+            where: { egressId },
+            data: {
+              status: `EGRESS_${status}`,
+              fileUrl: fileUrl || recording.fileUrl,
+              endedAt,
+              duration,
+              size: file?.size ? Number(file.size) : null,
+            },
+          });
+
+          // Revalidate videos page
+          if (recording.user?.username) {
+            revalidatePath(`/${recording.user.username}/videos`);
+            revalidatePath(`/u/${recording.user.username}`);
+          }
+        }
+      } catch (error) {
+        console.error("Error updating recording:", error);
+      }
+    }
+  }
+
   return new Response("OK", { status: 200 });
 }

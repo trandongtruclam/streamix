@@ -53,71 +53,109 @@ export function VodPlayer({ src, poster, title, autoPlay = false }: VodPlayerPro
   const [currentQuality, setCurrentQuality] = useState<number>(-1); // -1 = auto
   const [playbackSpeed, setPlaybackSpeed] = useState(1);
 
-  // Initialize HLS
+  // Initialize video player (HLS or MP4)
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
-    if (Hls.isSupported()) {
-      const hls = new Hls({
-        enableWorker: true,
-        lowLatencyMode: false,
-        backBufferLength: 90,
-      });
+    // Check if source is MP4 or HLS
+    const isMP4 = src.endsWith(".mp4") || src.includes(".mp4");
+    const isHLS = src.endsWith(".m3u8") || src.includes(".m3u8") || src.includes("playlist.m3u8");
 
-      hlsRef.current = hls;
-      hls.loadSource(src);
-      hls.attachMedia(video);
-
-      hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
-        setQualityLevels(
-          data.levels.map((level, index) => ({
-            height: level.height,
-            width: level.width,
-            bitrate: level.bitrate,
-            index,
-          }))
-        );
-        setIsLoading(false);
-        if (autoPlay) {
-          video.play().catch(() => {});
-        }
-      });
-
-      hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
-        setCurrentQuality(data.level);
-      });
-
-      hls.on(Hls.Events.ERROR, (_, data) => {
-        if (data.fatal) {
-          switch (data.type) {
-            case Hls.ErrorTypes.NETWORK_ERROR:
-              setError("Network error occurred");
-              hls.startLoad();
-              break;
-            case Hls.ErrorTypes.MEDIA_ERROR:
-              setError("Media error occurred");
-              hls.recoverMediaError();
-              break;
-            default:
-              setError("An error occurred");
-              hls.destroy();
-              break;
-          }
-        }
-      });
-
-      return () => {
-        hls.destroy();
-      };
-    } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
-      // Native HLS support (Safari)
+    if (isMP4) {
+      // Direct MP4 playback
       video.src = src;
       video.addEventListener("loadedmetadata", () => {
         setIsLoading(false);
         if (autoPlay) {
           video.play().catch(() => {});
         }
+      });
+      video.addEventListener("error", () => {
+        setError("Failed to load video");
+        setIsLoading(false);
+      });
+
+      return () => {
+        video.removeEventListener("loadedmetadata", () => {});
+        video.removeEventListener("error", () => {});
+      };
+    } else if (isHLS) {
+      // HLS playback
+      if (Hls.isSupported()) {
+        const hls = new Hls({
+          enableWorker: true,
+          lowLatencyMode: false,
+          backBufferLength: 90,
+        });
+
+        hlsRef.current = hls;
+        hls.loadSource(src);
+        hls.attachMedia(video);
+
+        hls.on(Hls.Events.MANIFEST_PARSED, (_, data) => {
+          setQualityLevels(
+            data.levels.map((level, index) => ({
+              height: level.height,
+              width: level.width,
+              bitrate: level.bitrate,
+              index,
+            }))
+          );
+          setIsLoading(false);
+          if (autoPlay) {
+            video.play().catch(() => {});
+          }
+        });
+
+        hls.on(Hls.Events.LEVEL_SWITCHED, (_, data) => {
+          setCurrentQuality(data.level);
+        });
+
+        hls.on(Hls.Events.ERROR, (_, data) => {
+          if (data.fatal) {
+            switch (data.type) {
+              case Hls.ErrorTypes.NETWORK_ERROR:
+                setError("Network error occurred");
+                hls.startLoad();
+                break;
+              case Hls.ErrorTypes.MEDIA_ERROR:
+                setError("Media error occurred");
+                hls.recoverMediaError();
+                break;
+              default:
+                setError("An error occurred");
+                hls.destroy();
+                break;
+            }
+          }
+        });
+
+        return () => {
+          hls.destroy();
+        };
+      } else if (video.canPlayType("application/vnd.apple.mpegurl")) {
+        // Native HLS support (Safari)
+        video.src = src;
+        video.addEventListener("loadedmetadata", () => {
+          setIsLoading(false);
+          if (autoPlay) {
+            video.play().catch(() => {});
+          }
+        });
+      }
+    } else {
+      // Try to play as direct video (fallback)
+      video.src = src;
+      video.addEventListener("loadedmetadata", () => {
+        setIsLoading(false);
+        if (autoPlay) {
+          video.play().catch(() => {});
+        }
+      });
+      video.addEventListener("error", () => {
+        setError("Failed to load video");
+        setIsLoading(false);
       });
     }
   }, [src, autoPlay]);
@@ -246,7 +284,7 @@ export function VodPlayer({ src, poster, title, autoPlay = false }: VodPlayerPro
   }, [isFullscreen]);
 
   const handleQualityChange = useCallback((index: number) => {
-    if (!hlsRef.current) return;
+    if (!hlsRef.current) return; // Only works for HLS
     
     if (index === -1) {
       hlsRef.current.currentLevel = -1; // Auto
@@ -462,31 +500,33 @@ export function VodPlayer({ src, poster, title, autoPlay = false }: VodPlayerPro
                           exit={{ opacity: 0, y: 10 }}
                           className="absolute bottom-full right-0 mb-2 w-48 bg-[#18181b] border border-[#3a3a3d] rounded-lg shadow-xl overflow-hidden"
                         >
-                          {/* Quality */}
-                          <div className="p-2 border-b border-[#3a3a3d]">
-                            <p className="text-xs text-[#adadb8] px-2 py-1">Quality</p>
-                            <button
-                              onClick={() => handleQualityChange(-1)}
-                              className={`w-full px-2 py-1.5 text-sm text-left rounded flex items-center justify-between ${
-                                currentQuality === -1 ? "text-white bg-[#26262c]" : "text-[#adadb8] hover:bg-[#26262c]"
-                              }`}
-                            >
-                              Auto
-                              {currentQuality === -1 && <Check className="h-4 w-4" />}
-                            </button>
-                            {qualityLevels.map((level) => (
+                          {/* Quality - Only show for HLS */}
+                          {qualityLevels.length > 0 && (
+                            <div className="p-2 border-b border-[#3a3a3d]">
+                              <p className="text-xs text-[#adadb8] px-2 py-1">Quality</p>
                               <button
-                                key={level.index}
-                                onClick={() => handleQualityChange(level.index)}
+                                onClick={() => handleQualityChange(-1)}
                                 className={`w-full px-2 py-1.5 text-sm text-left rounded flex items-center justify-between ${
-                                  currentQuality === level.index ? "text-white bg-[#26262c]" : "text-[#adadb8] hover:bg-[#26262c]"
+                                  currentQuality === -1 ? "text-white bg-[#26262c]" : "text-[#adadb8] hover:bg-[#26262c]"
                                 }`}
                               >
-                                {level.height}p
-                                {currentQuality === level.index && <Check className="h-4 w-4" />}
+                                Auto
+                                {currentQuality === -1 && <Check className="h-4 w-4" />}
                               </button>
-                            ))}
-                          </div>
+                              {qualityLevels.map((level) => (
+                                <button
+                                  key={level.index}
+                                  onClick={() => handleQualityChange(level.index)}
+                                  className={`w-full px-2 py-1.5 text-sm text-left rounded flex items-center justify-between ${
+                                    currentQuality === level.index ? "text-white bg-[#26262c]" : "text-[#adadb8] hover:bg-[#26262c]"
+                                  }`}
+                                >
+                                  {level.height}p
+                                  {currentQuality === level.index && <Check className="h-4 w-4" />}
+                                </button>
+                              ))}
+                            </div>
+                          )}
 
                           {/* Speed */}
                           <div className="p-2">
@@ -529,5 +569,3 @@ export function VodPlayer({ src, poster, title, autoPlay = false }: VodPlayerPro
     </div>
   );
 }
-
-

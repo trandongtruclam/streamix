@@ -55,7 +55,8 @@ export const ModelName = {
   Stream: 'Stream',
   Follow: 'Follow',
   Block: 'Block',
-  Session: 'Session'
+  Session: 'Session',
+  Recording: 'Recording'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -138,6 +139,25 @@ export const SessionScalarFieldEnum = {
 } as const
 
 export type SessionScalarFieldEnum = (typeof SessionScalarFieldEnum)[keyof typeof SessionScalarFieldEnum]
+
+
+export const RecordingScalarFieldEnum = {
+  id: 'id',
+  egressId: 'egressId',
+  userId: 'userId',
+  title: 'title',
+  fileUrl: 'fileUrl',
+  filepath: 'filepath',
+  duration: 'duration',
+  size: 'size',
+  status: 'status',
+  startedAt: 'startedAt',
+  endedAt: 'endedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type RecordingScalarFieldEnum = (typeof RecordingScalarFieldEnum)[keyof typeof RecordingScalarFieldEnum]
 
 
 export const SortOrder = {

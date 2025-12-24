@@ -211,6 +211,7 @@ export type UserWhereInput = {
   blocking?: Prisma.BlockListRelationFilter
   blockedBy?: Prisma.BlockListRelationFilter
   stream?: Prisma.XOR<Prisma.StreamNullableScalarRelationFilter, Prisma.StreamWhereInput> | null
+  recordings?: Prisma.RecordingListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -227,6 +228,7 @@ export type UserOrderByWithRelationInput = {
   blocking?: Prisma.BlockOrderByRelationAggregateInput
   blockedBy?: Prisma.BlockOrderByRelationAggregateInput
   stream?: Prisma.StreamOrderByWithRelationInput
+  recordings?: Prisma.RecordingOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -246,6 +248,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   blocking?: Prisma.BlockListRelationFilter
   blockedBy?: Prisma.BlockListRelationFilter
   stream?: Prisma.XOR<Prisma.StreamNullableScalarRelationFilter, Prisma.StreamWhereInput> | null
+  recordings?: Prisma.RecordingListRelationFilter
 }, "id" | "username" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type UserCreateInput = {
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -306,6 +310,7 @@ export type UserUncheckedCreateInput = {
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamUncheckedCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -322,6 +327,7 @@ export type UserUpdateInput = {
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -338,6 +344,7 @@ export type UserUncheckedUpdateInput = {
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUncheckedUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -493,6 +500,20 @@ export type UserUpdateOneRequiredWithoutBlockedByNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBlockedByInput, Prisma.UserUpdateWithoutBlockedByInput>, Prisma.UserUncheckedUpdateWithoutBlockedByInput>
 }
 
+export type UserCreateNestedOneWithoutRecordingsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRecordingsInput, Prisma.UserUncheckedCreateWithoutRecordingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordingsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutRecordingsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutRecordingsInput, Prisma.UserUncheckedCreateWithoutRecordingsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutRecordingsInput
+  upsert?: Prisma.UserUpsertWithoutRecordingsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutRecordingsInput, Prisma.UserUpdateWithoutRecordingsInput>, Prisma.UserUncheckedUpdateWithoutRecordingsInput>
+}
+
 export type UserCreateWithoutStreamInput = {
   id?: string
   username: string
@@ -506,6 +527,7 @@ export type UserCreateWithoutStreamInput = {
   followedBy?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutStreamInput = {
@@ -521,6 +543,7 @@ export type UserUncheckedCreateWithoutStreamInput = {
   followedBy?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutStreamInput = {
@@ -552,6 +575,7 @@ export type UserUpdateWithoutStreamInput = {
   followedBy?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutStreamInput = {
@@ -567,6 +591,7 @@ export type UserUncheckedUpdateWithoutStreamInput = {
   followedBy?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutFollowingInput = {
@@ -582,6 +607,7 @@ export type UserCreateWithoutFollowingInput = {
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowingInput = {
@@ -597,6 +623,7 @@ export type UserUncheckedCreateWithoutFollowingInput = {
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamUncheckedCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowingInput = {
@@ -617,6 +644,7 @@ export type UserCreateWithoutFollowedByInput = {
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutFollowedByInput = {
@@ -632,6 +660,7 @@ export type UserUncheckedCreateWithoutFollowedByInput = {
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamUncheckedCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutFollowedByInput = {
@@ -663,6 +692,7 @@ export type UserUpdateWithoutFollowingInput = {
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowingInput = {
@@ -678,6 +708,7 @@ export type UserUncheckedUpdateWithoutFollowingInput = {
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUncheckedUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutFollowedByInput = {
@@ -704,6 +735,7 @@ export type UserUpdateWithoutFollowedByInput = {
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutFollowedByInput = {
@@ -719,6 +751,7 @@ export type UserUncheckedUpdateWithoutFollowedByInput = {
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUncheckedUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBlockingInput = {
@@ -734,6 +767,7 @@ export type UserCreateWithoutBlockingInput = {
   followedBy?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockingInput = {
@@ -749,6 +783,7 @@ export type UserUncheckedCreateWithoutBlockingInput = {
   followedBy?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
   stream?: Prisma.StreamUncheckedCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockingInput = {
@@ -769,6 +804,7 @@ export type UserCreateWithoutBlockedByInput = {
   followedBy?: Prisma.FollowCreateNestedManyWithoutFollowingInput
   blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
   stream?: Prisma.StreamCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBlockedByInput = {
@@ -784,6 +820,7 @@ export type UserUncheckedCreateWithoutBlockedByInput = {
   followedBy?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
   blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
   stream?: Prisma.StreamUncheckedCreateNestedOneWithoutUserInput
+  recordings?: Prisma.RecordingUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBlockedByInput = {
@@ -815,6 +852,7 @@ export type UserUpdateWithoutBlockingInput = {
   followedBy?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockingInput = {
@@ -830,6 +868,7 @@ export type UserUncheckedUpdateWithoutBlockingInput = {
   followedBy?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
   stream?: Prisma.StreamUncheckedUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpsertWithoutBlockedByInput = {
@@ -856,6 +895,7 @@ export type UserUpdateWithoutBlockedByInput = {
   followedBy?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
   blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
   stream?: Prisma.StreamUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBlockedByInput = {
@@ -871,6 +911,87 @@ export type UserUncheckedUpdateWithoutBlockedByInput = {
   followedBy?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
   blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
   stream?: Prisma.StreamUncheckedUpdateOneWithoutUserNestedInput
+  recordings?: Prisma.RecordingUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutRecordingsInput = {
+  id?: string
+  username: string
+  email: string
+  passwordHash: string
+  imageUrl?: string
+  bio?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  following?: Prisma.FollowCreateNestedManyWithoutFollowerInput
+  followedBy?: Prisma.FollowCreateNestedManyWithoutFollowingInput
+  blocking?: Prisma.BlockCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockCreateNestedManyWithoutBlockedInput
+  stream?: Prisma.StreamCreateNestedOneWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutRecordingsInput = {
+  id?: string
+  username: string
+  email: string
+  passwordHash: string
+  imageUrl?: string
+  bio?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  following?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowerInput
+  followedBy?: Prisma.FollowUncheckedCreateNestedManyWithoutFollowingInput
+  blocking?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockerInput
+  blockedBy?: Prisma.BlockUncheckedCreateNestedManyWithoutBlockedInput
+  stream?: Prisma.StreamUncheckedCreateNestedOneWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutRecordingsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutRecordingsInput, Prisma.UserUncheckedCreateWithoutRecordingsInput>
+}
+
+export type UserUpsertWithoutRecordingsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutRecordingsInput, Prisma.UserUncheckedUpdateWithoutRecordingsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutRecordingsInput, Prisma.UserUncheckedCreateWithoutRecordingsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutRecordingsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutRecordingsInput, Prisma.UserUncheckedUpdateWithoutRecordingsInput>
+}
+
+export type UserUpdateWithoutRecordingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  following?: Prisma.FollowUpdateManyWithoutFollowerNestedInput
+  followedBy?: Prisma.FollowUpdateManyWithoutFollowingNestedInput
+  blocking?: Prisma.BlockUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUpdateManyWithoutBlockedNestedInput
+  stream?: Prisma.StreamUpdateOneWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutRecordingsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  imageUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  bio?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  following?: Prisma.FollowUncheckedUpdateManyWithoutFollowerNestedInput
+  followedBy?: Prisma.FollowUncheckedUpdateManyWithoutFollowingNestedInput
+  blocking?: Prisma.BlockUncheckedUpdateManyWithoutBlockerNestedInput
+  blockedBy?: Prisma.BlockUncheckedUpdateManyWithoutBlockedNestedInput
+  stream?: Prisma.StreamUncheckedUpdateOneWithoutUserNestedInput
 }
 
 
@@ -883,6 +1004,7 @@ export type UserCountOutputType = {
   followedBy: number
   blocking: number
   blockedBy: number
+  recordings: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -890,6 +1012,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   followedBy?: boolean | UserCountOutputTypeCountFollowedByArgs
   blocking?: boolean | UserCountOutputTypeCountBlockingArgs
   blockedBy?: boolean | UserCountOutputTypeCountBlockedByArgs
+  recordings?: boolean | UserCountOutputTypeCountRecordingsArgs
 }
 
 /**
@@ -930,6 +1053,13 @@ export type UserCountOutputTypeCountBlockedByArgs<ExtArgs extends runtime.Types.
   where?: Prisma.BlockWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountRecordingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.RecordingWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -945,6 +1075,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   blocking?: boolean | Prisma.User$blockingArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   stream?: boolean | Prisma.User$streamArgs<ExtArgs>
+  recordings?: boolean | Prisma.User$recordingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -988,6 +1119,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   blocking?: boolean | Prisma.User$blockingArgs<ExtArgs>
   blockedBy?: boolean | Prisma.User$blockedByArgs<ExtArgs>
   stream?: boolean | Prisma.User$streamArgs<ExtArgs>
+  recordings?: boolean | Prisma.User$recordingsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1001,6 +1133,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     blocking: Prisma.$BlockPayload<ExtArgs>[]
     blockedBy: Prisma.$BlockPayload<ExtArgs>[]
     stream: Prisma.$StreamPayload<ExtArgs> | null
+    recordings: Prisma.$RecordingPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1410,6 +1543,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   blocking<T extends Prisma.User$blockingArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockingArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   blockedBy<T extends Prisma.User$blockedByArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$blockedByArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BlockPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   stream<T extends Prisma.User$streamArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$streamArgs<ExtArgs>>): Prisma.Prisma__StreamClient<runtime.Types.Result.GetResult<Prisma.$StreamPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  recordings<T extends Prisma.User$recordingsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$recordingsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RecordingPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1947,6 +2081,30 @@ export type User$streamArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    */
   include?: Prisma.StreamInclude<ExtArgs> | null
   where?: Prisma.StreamWhereInput
+}
+
+/**
+ * User.recordings
+ */
+export type User$recordingsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Recording
+   */
+  select?: Prisma.RecordingSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Recording
+   */
+  omit?: Prisma.RecordingOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.RecordingInclude<ExtArgs> | null
+  where?: Prisma.RecordingWhereInput
+  orderBy?: Prisma.RecordingOrderByWithRelationInput | Prisma.RecordingOrderByWithRelationInput[]
+  cursor?: Prisma.RecordingWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.RecordingScalarFieldEnum | Prisma.RecordingScalarFieldEnum[]
 }
 
 /**

@@ -4,7 +4,7 @@ generator client {
 }
 
 datasource db {
-  provider  = "postgresql"
+  provider = "postgresql"
 }
 
 model User {
@@ -21,7 +21,8 @@ model User {
   blocking  Block[] @relation("Blocking")
   blockedBy Block[] @relation("BlockedBy")
 
-  stream Stream?
+  stream     Stream?
+  recordings Recording[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -91,4 +92,29 @@ model Session {
 
   @@index([userId])
   @@index([token])
+}
+
+model Recording {
+  id       String @id @default(uuid())
+  egressId String @unique
+  userId   String
+  user     User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  title    String?
+  fileUrl  String? // URL từ R2 (public URL)
+  filepath String // Path trong R2 bucket
+  duration Int? // seconds
+  size     Int? // bytes
+
+  status String // EGRESS_STARTING, EGRESS_ACTIVE, EGRESS_COMPLETE, EGRESS_ABORTED, etc.
+
+  startedAt DateTime?
+  endedAt   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([egressId])
+  @@index([status])
 }

@@ -3,6 +3,7 @@ import { ArrowLeft, Share2, Download, Flag } from "lucide-react";
 import Link from "next/link";
 
 import { getUserByUsername } from "@/lib/user-service";
+import { getRecordingById } from "@/lib/recording-service";
 import { UserAvatar } from "@/components/user-avatar";
 import { VodPlayerClient } from "./_components/vod-player-client";
 
@@ -22,15 +23,25 @@ export default async function VideoPage({
     );
   }
 
-  // Mock video data - in production, fetch from database
+  // Fetch recording from database
+  const recording = await getRecordingById(videoId);
+
+  if (!recording || recording.user.username !== username) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <p className="text-[#adadb8]">Video not found</p>
+      </div>
+    );
+  }
+
   const video = {
-    id: videoId,
-    title: "Amazing Gaming Session - Full Stream",
-    description: "Had an amazing time streaming today! Thanks to everyone who joined the chat.",
-    hlsUrl: "", // Would be the actual HLS URL from your storage
-    duration: 7200,
-    views: 1234,
-    createdAt: new Date("2024-12-15"),
+    id: recording.id,
+    title: recording.title || `Stream Recording - ${new Date(recording.createdAt).toLocaleDateString()}`,
+    description: `Recorded on ${new Date(recording.createdAt).toLocaleDateString()}`,
+    fileUrl: recording.fileUrl || "",
+    duration: recording.duration || 0,
+    views: 0, // TODO: Add views tracking
+    createdAt: recording.createdAt,
   };
 
   return (
@@ -48,10 +59,16 @@ export default async function VideoPage({
 
       {/* Video Player */}
       <div className="bg-black">
-        <VodPlayerClient 
-          src={video.hlsUrl}
-          title={video.title}
-        />
+        {video.fileUrl ? (
+          <VodPlayerClient 
+            src={video.fileUrl}
+            title={video.title}
+          />
+        ) : (
+          <div className="aspect-video flex items-center justify-center">
+            <p className="text-[#adadb8]">Video is still processing...</p>
+          </div>
+        )}
       </div>
 
       {/* Video Info */}
@@ -121,5 +138,3 @@ export default async function VideoPage({
     </div>
   );
 }
-
-

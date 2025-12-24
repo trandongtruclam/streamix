@@ -64,3 +64,8 @@ export type Block = Prisma.BlockModel
  * 
  */
 export type Session = Prisma.SessionModel
+/**
+ * Model Recording
+ * 
+ */
+export type Recording = Prisma.RecordingModel

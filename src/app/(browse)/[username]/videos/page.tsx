@@ -4,6 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 import { getUserByUsername } from "@/lib/user-service";
+import { getRecordingsByUsername } from "@/lib/recording-service";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export default async function VideosPage({
@@ -22,33 +23,19 @@ export default async function VideosPage({
     );
   }
 
-  // Mock VOD data - in production, fetch from database
-  const videos = [
-    {
-      id: "1",
-      title: "Amazing Gaming Session",
-      thumbnailUrl: null,
-      duration: 7200, // seconds
-      views: 1234,
-      createdAt: new Date("2024-12-15"),
-    },
-    {
-      id: "2",
-      title: "Q&A with Chat",
-      thumbnailUrl: null,
-      duration: 5400,
-      views: 856,
-      createdAt: new Date("2024-12-13"),
-    },
-    {
-      id: "3",
-      title: "Coding Stream - Building a Feature",
-      thumbnailUrl: null,
-      duration: 10800,
-      views: 2341,
-      createdAt: new Date("2024-12-10"),
-    },
-  ];
+  // Fetch recordings from database
+  const recordings = await getRecordingsByUsername(username);
+  
+  // Transform recordings to video format
+  const videos = recordings.map((recording) => ({
+    id: recording.id,
+    title: recording.title || `Stream Recording - ${new Date(recording.createdAt).toLocaleDateString()}`,
+    thumbnailUrl: null,
+    duration: recording.duration || 0,
+    views: 0, // TODO: Add views tracking
+    createdAt: recording.createdAt,
+    fileUrl: recording.fileUrl,
+  }));
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
@@ -89,6 +76,7 @@ interface VideoCardProps {
     duration: number;
     views: number;
     createdAt: Date;
+    fileUrl?: string | null;
   };
   username: string;
 }
@@ -152,9 +140,11 @@ function VideoCard({ video, username }: VideoCardProps) {
           </div>
 
           {/* Duration badge */}
-          <div className="absolute bottom-2 right-2 bg-black/80 px-1.5 py-0.5 rounded text-white text-xs font-medium">
-            {formatDuration(video.duration)}
-          </div>
+          {video.duration > 0 && (
+            <div className="absolute bottom-2 right-2 bg-black/80 px-1.5 py-0.5 rounded text-white text-xs font-medium">
+              {formatDuration(video.duration)}
+            </div>
+          )}
         </div>
 
         {/* Info */}
@@ -187,5 +177,3 @@ export function VideoCardSkeleton() {
     </div>
   );
 }
-
-
