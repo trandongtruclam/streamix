@@ -23,18 +23,30 @@ export default async function VideosPage({
     );
   }
 
-  // Fetch recordings from database
-  const recordings = await getRecordingsByUsername(username);
-  
+  // Fetch recordings from database - include incomplete ones that have fileUrl
+  const allRecordings = await getRecordingsByUsername(username, true);
+
+  // Filter: show completed OR incomplete but have fileUrl
+  const visibleRecordings = allRecordings.filter(
+    (recording) =>
+      recording.status === "EGRESS_COMPLETE" ||
+      (recording.fileUrl && recording.status !== "EGRESS_FAILED")
+  );
+
   // Transform recordings to video format
-  const videos = recordings.map((recording) => ({
+  const videos = visibleRecordings.map((recording) => ({
     id: recording.id,
-    title: recording.title || `Stream Recording - ${new Date(recording.createdAt).toLocaleDateString()}`,
+    title:
+      recording.title ||
+      `Stream Recording - ${new Date(
+        recording.createdAt
+      ).toLocaleDateString()}`,
     thumbnailUrl: null,
     duration: recording.duration || 0,
     views: 0, // TODO: Add views tracking
     createdAt: recording.createdAt,
     fileUrl: recording.fileUrl,
+    status: recording.status,
   }));
 
   return (
@@ -45,7 +57,9 @@ export default async function VideosPage({
           <Video className="h-6 w-6 text-[#9147ff]" />
         </div>
         <div>
-          <h1 className="text-2xl font-bold text-white">{user.username}&apos;s Videos</h1>
+          <h1 className="text-2xl font-bold text-white">
+            {user.username}&apos;s Videos
+          </h1>
           <p className="text-[#adadb8] text-sm">{videos.length} videos</p>
         </div>
       </div>
@@ -55,7 +69,9 @@ export default async function VideosPage({
         <div className="text-center py-20">
           <Video className="h-16 w-16 text-[#3a3a3d] mx-auto mb-4" />
           <p className="text-[#adadb8] text-lg">No videos yet</p>
-          <p className="text-[#666] text-sm">Past broadcasts will appear here</p>
+          <p className="text-[#666] text-sm">
+            Past broadcasts will appear here
+          </p>
         </div>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -77,6 +93,7 @@ interface VideoCardProps {
     views: number;
     createdAt: Date;
     fileUrl?: string | null;
+    status?: string;
   };
   username: string;
 }
@@ -85,7 +102,7 @@ function VideoCard({ video, username }: VideoCardProps) {
   const formatDuration = (seconds: number) => {
     const hrs = Math.floor(seconds / 3600);
     const mins = Math.floor((seconds % 3600) / 60);
-    
+
     if (hrs > 0) {
       return `${hrs}:${mins.toString().padStart(2, "0")}:00`;
     }
@@ -106,7 +123,7 @@ function VideoCard({ video, username }: VideoCardProps) {
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-    
+
     if (days === 0) return "Today";
     if (days === 1) return "Yesterday";
     if (days < 7) return `${days} days ago`;
@@ -131,7 +148,7 @@ function VideoCard({ video, username }: VideoCardProps) {
               <Video className="h-12 w-12 text-[#3a3a3d]" />
             </div>
           )}
-          
+
           {/* Play overlay */}
           <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
             <div className="p-3 bg-white/20 backdrop-blur-sm rounded-full">

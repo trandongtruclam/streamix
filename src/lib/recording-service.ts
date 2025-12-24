@@ -1,11 +1,11 @@
 import prisma from "@/lib/prisma";
 
-export async function getRecordingsByUserId(userId: string) {
+export async function getRecordingsByUserId(userId: string, includeIncomplete = false) {
   try {
     const recordings = await prisma.recording.findMany({
       where: {
         userId,
-        status: "EGRESS_COMPLETE", // Only show completed recordings
+        ...(includeIncomplete ? {} : { status: "EGRESS_COMPLETE" }), // Only show completed recordings by default
       },
       orderBy: {
         createdAt: "desc",
@@ -70,7 +70,7 @@ export async function getRecordingByEgressId(egressId: string) {
   }
 }
 
-export async function getRecordingsByUsername(username: string) {
+export async function getRecordingsByUsername(username: string, includeIncomplete = false) {
   try {
     const user = await prisma.user.findUnique({
       where: { username },
@@ -81,9 +81,14 @@ export async function getRecordingsByUsername(username: string) {
       return [];
     }
 
-    return getRecordingsByUserId(user.id);
+    return getRecordingsByUserId(user.id, includeIncomplete);
   } catch (error) {
     console.error("Failed to get recordings by username:", error);
     return [];
   }
+}
+
+// Get all recordings (including incomplete) for debugging
+export async function getAllRecordingsByUserId(userId: string) {
+  return getRecordingsByUserId(userId, true);
 }

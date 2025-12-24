@@ -14,6 +14,7 @@ import { revalidatePath } from "next/cache";
 
 import prisma from "@/lib/prisma";
 import { getSelf } from "@/lib/auth-service";
+import { getRecordingByEgressId } from "@/lib/recording-service";
 
 // Initialize Egress client
 const getLiveKitApiUrl = () => {
@@ -94,9 +95,23 @@ export async function startRecording(roomName: string) {
     const storageUrl = process.env.STORAGE_URL || "";
     const fileUrl = storageUrl ? `${storageUrl}/${fileOutput.filepath}` : null;
 
-    const startedAt = egress.startedAt
-      ? new Date(Number(egress.startedAt) / 1000)
-      : new Date();
+    // LiveKit timestamps are in nanoseconds, convert to milliseconds
+    let startedAt = new Date();
+    if (egress.startedAt) {
+      const timestamp = Number(egress.startedAt);
+      // Check if it's nanoseconds (very large number) or milliseconds
+      if (timestamp > 1e12) {
+        // Nanoseconds, convert to milliseconds
+        startedAt = new Date(timestamp / 1_000_000);
+      } else {
+        // Already in milliseconds
+        startedAt = new Date(timestamp);
+      }
+      // Validate date
+      if (isNaN(startedAt.getTime())) {
+        startedAt = new Date();
+      }
+    }
 
     await prisma.recording.create({
       data: {
@@ -137,6 +152,7 @@ export async function stopRecording(egressId: string) {
     const result = await egressClient.stopEgress(egressId);
 
     revalidatePath(`/u/${self.username}`);
+    revalidatePath(`/${self.username}/videos`);
 
     return {
       success: true,
@@ -145,6 +161,85 @@ export async function stopRecording(egressId: string) {
   } catch (error) {
     console.error("Failed to stop recording:", error);
     throw new Error("Failed to stop recording");
+  }
+}
+
+// Sync recording status from LiveKit (useful if webhook didn't fire)
+export async function syncRecordingStatus(egressId: string) {
+  try {
+    const self = await getSelf();
+    const egressClient = getEgressClient();
+
+    // Get recording from database
+    const recording = await getRecordingByEgressId(egressId);
+    if (!recording || recording.userId !== self.id) {
+      throw new Error("Recording not found or unauthorized");
+    }
+
+    // Get latest status from LiveKit
+    const egressList = await egressClient.listEgress({ egressId });
+    if (egressList.length === 0) {
+      throw new Error("Egress not found in LiveKit");
+    }
+
+    const egress = egressList[0];
+    const status = `EGRESS_${egress.status}`;
+
+    // Build file URL from filepath if not already set
+    const storageUrl = process.env.STORAGE_URL || "";
+    let fileUrl = recording.fileUrl;
+
+    // If fileUrl is not set, build it from filepath
+    if (!fileUrl && recording.filepath && storageUrl) {
+      fileUrl = `${storageUrl}/${recording.filepath}`;
+    }
+
+    // Calculate duration
+    let endedAt: Date | null = null;
+    let duration: number | null = null;
+
+    if (egress.endedAt) {
+      const timestamp = Number(egress.endedAt);
+      if (timestamp > 1e12) {
+        endedAt = new Date(timestamp / 1_000_000);
+      } else {
+        endedAt = new Date(timestamp);
+      }
+      if (isNaN(endedAt.getTime())) {
+        endedAt = null;
+      }
+    }
+
+    if (recording.startedAt && endedAt) {
+      duration = Math.floor(
+        (endedAt.getTime() - recording.startedAt.getTime()) / 1000
+      );
+    }
+
+    // Update recording
+    await prisma.recording.update({
+      where: { egressId },
+      data: {
+        status,
+        fileUrl: fileUrl || recording.fileUrl,
+        endedAt,
+        duration,
+        // Note: size info not available from listEgress, will be updated by webhook
+      },
+    });
+
+    revalidatePath(`/${self.username}/videos`);
+    revalidatePath(`/u/${self.username}`);
+
+    return {
+      success: true,
+      status,
+      fileUrl,
+      duration,
+    };
+  } catch (error) {
+    console.error("Failed to sync recording status:", error);
+    throw new Error("Failed to sync recording status");
   }
 }
 

@@ -231,9 +231,25 @@ export async function POST(req: Request) {
           const startedAt = recording.startedAt 
             ? new Date(recording.startedAt)
             : null;
-          const endedAt = event.egressInfo?.endedAt
-            ? new Date(Number(event.egressInfo.endedAt) / 1000)
-            : new Date();
+          
+          // LiveKit timestamps are in nanoseconds, convert to milliseconds
+          let endedAt = new Date();
+          if (event.egressInfo?.endedAt) {
+            const timestamp = Number(event.egressInfo.endedAt);
+            // Check if it's nanoseconds (very large number) or milliseconds
+            if (timestamp > 1e12) {
+              // Nanoseconds, convert to milliseconds
+              endedAt = new Date(timestamp / 1_000_000);
+            } else {
+              // Already in milliseconds
+              endedAt = new Date(timestamp);
+            }
+            // Validate date
+            if (isNaN(endedAt.getTime())) {
+              endedAt = new Date();
+            }
+          }
+          
           const duration = startedAt && endedAt
             ? Math.floor((endedAt.getTime() - startedAt.getTime()) / 1000)
             : null;
